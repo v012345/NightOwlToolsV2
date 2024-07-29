@@ -3,5 +3,8 @@
         "ldebug.h": "c",
         "lauxlib.h": "c",
         "lundump.h": "c"
-    }
+    },
+    "Lua.diagnostics.globals": [
+        "lfs"
+    ]
 }

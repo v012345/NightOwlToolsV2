@@ -7,12 +7,14 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 add_subdirectory("lua-5.4.7/src")
+add_subdirectory("extensions")
 
 add_executable(${PROJECT_NAME}
     main.c
 )
 target_link_libraries(${PROJECT_NAME}
     liblua
+    liblfs 
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE
