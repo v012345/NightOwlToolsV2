@@ -1,3 +1,6 @@
 [submodule "extensions/luafilesystem"]
 	path = extensions/luafilesystem
 	url = git@github.com:lunarmodules/luafilesystem.git
+[submodule "extensions/luasocket"]
+	path = extensions/luasocket
+	url = git@github.com:lunarmodules/luasocket.git
