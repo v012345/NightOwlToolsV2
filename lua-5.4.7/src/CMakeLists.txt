@@ -4,6 +4,9 @@ project(liblua)
 # 定义是否构建为动态库的选项, 变动的话, 需要删除 build, 重新构建
 option(BUILD_SHARED_LIBS "Build liblua as a shared library" ON)
 
+# 定义是否构建 lua.exe 与 luac.exe
+option(BUILD_LUA_AND_LUAC "Build lua.exe and luac.exe or not" OFF)
+
 set(LUA_SRC_CODE
     lapi.c
     lauxlib.c
@@ -46,11 +49,13 @@ if(BUILD_SHARED_LIBS)
 else()
     message("****** build static lua: liblua.lib ******")
     add_library(${PROJECT_NAME} STATIC ${LUA_SRC_CODE})
-endif()
+endif(BUILD_SHARED_LIBS)
 
-# 创建可执行文件 lua 并链接 liblua
-add_executable(lua lua.c)
-target_link_libraries(lua ${PROJECT_NAME})
+if(BUILD_LUA_AND_LUAC)
+    # 创建可执行文件 lua 并链接 liblua
+    add_executable(lua lua.c)
+    target_link_libraries(lua ${PROJECT_NAME})
 
-# luac 里有使用 LUAI_FUNC 声明的函数, 所以不能动态库
-add_executable(luac luac.c ${LUA_SRC_CODE})
+    # luac 里有使用 LUAI_FUNC 声明的函数, 所以不能动态库
+    add_executable(luac luac.c ${LUA_SRC_CODE})
+endif(BUILD_LUA_AND_LUAC)
