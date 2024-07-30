@@ -6,30 +6,76 @@ CSV = {
 }
 
 setmetatable(CSV, {
-    __call = function(self, pathOrStream)
+    __call = function(self, pathOrStream, hasHead)
         ---@type CSV
         local obj = {}
         setmetatable(obj, {
             __index = self
         })
-        obj:_construct(pathOrStream)
+        obj:_construct(pathOrStream, hasHead)
         return obj
     end,
     __index = CSV.__parent
 })
-function CSV:_construct(pathOrStream)
+
+function CSV:_construct(pathOrStream, hasHead)
     CSV.__parent._construct(self, pathOrStream)
     self._mCsvRowNumber = 0
     self._mCsvColNumber = 0
     self._mData = {}
     self._maxColNumber = 0
+    self._hasHead = hasHead and true or false
+    self._tableHead = {}
     if pathOrStream then
         self:_parse()
     end
+    if self._hasHead then
+        local head = {}
+        for i, v in ipairs(self._mData[1]) do
+            head[i] = v:getData()
+        end
+
+        self:setTableHead(head)
+    end
 end
 
-function CSV:getData()
-    return self._mData
+function CSV:getHead()
+    local head = {}
+    for k, v in pairs(self._tableHead) do
+        head[v] = k
+    end
+    return head
+end
+
+function CSV:copyFromRow(rowNum, row)
+    for i, v in ipairs(row) do
+        self:setCell(rowNum, i, v:getData())
+    end
+end
+
+function CSV:setTableHead(head)
+    for i, v in ipairs(head) do
+        if self._tableHead[v] then
+            error("repeat head " .. v)
+        else
+            self._tableHead[v] = i
+            self:setCell(1, i, v)
+        end
+
+    end
+    self._hasHead = true
+end
+
+function CSV:setCellByHead(row, colName, data)
+    self:setCell(row, self._tableHead[colName], data)
+end
+
+function CSV:getData(row, col)
+    return self._mData[row][col]:getData()
+end
+
+function CSV:getDataByHead(row, colName)
+    return self._mData[row][self._tableHead[colName]]:getData()
 end
 
 function CSV:_parse()
@@ -44,7 +90,7 @@ function CSV:_parse()
     until self:_isEnd()
 end
 
-function CSV:writeTo(path,useBom)
+function CSV:writeTo(path, useBom)
     local file = io.open(path, "w") or error("can't open " .. path)
     if useBom then
         file:write("\xEF\xBB\xBF")
@@ -96,6 +142,10 @@ function CSV:_spawnCell(data)
         cell:setData(data)
     end
     return cell
+end
+
+function CSV:getRow(rowNum)
+    return self._mData[rowNum]
 end
 
 --- 请顺序填充, 不然有问题
