@@ -1,10 +1,14 @@
 cmake_minimum_required(VERSION 3.20)
 set(LUA_SRC ${CMAKE_SOURCE_DIR}/lua-5.4.7/src)
-add_library(liblfs SHARED luafilesystem/src/lfs.c)
+
+# add_library(liblfs SHARED
+add_library(liblfs STATIC
+    luafilesystem/src/lfs.c)
 target_include_directories(liblfs PRIVATE ${LUA_SRC})
 target_link_libraries(liblfs liblua)
 
-add_library(libluasocket SHARED
+# add_library(libluasocket SHARED
+add_library(libluasocket STATIC
     "luasocket/src/mime.c"
     "luasocket/src/compat.c"
     "luasocket/src/auxiliar.c"

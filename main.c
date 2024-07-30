@@ -13,6 +13,7 @@ int main(int argc, char const *argv[])
     lua_pop(L, 1);
     luaL_requiref(L, "mime.core", luaopen_mime_core, 0);
     lua_pop(L, 1);
-    luaL_dofile(L, LUA_TEST_SCRIPT);
+    // luaL_dofile(L, LUA_TEST_SCRIPT);
+    luaL_dofile(L, "main.lua");
     return 0;
 }
