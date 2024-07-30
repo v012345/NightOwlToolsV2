@@ -44,8 +44,11 @@ function CSV:_parse()
     until self:_isEnd()
 end
 
-function CSV:writeTo(path)
+function CSV:writeTo(path,useBom)
     local file = io.open(path, "w") or error("can't open " .. path)
+    if useBom then
+        file:write("\xEF\xBB\xBF")
+    end
     for _, row in ipairs(self._mData) do
         for i, cell in ipairs(row) do
             file:write(cell:getRawData())
@@ -108,6 +111,10 @@ function CSV:setCell(row, col, data)
         self._mData[row][col] = self:_spawnCell(data)
     end
     self._maxColNumber = (col < self._maxColNumber) and self._maxColNumber or col
+end
+
+function CSV:getRowNumber()
+    return #self._mData
 end
 
 function CSV:_readString()
