@@ -24,6 +24,11 @@ function XML:_construct(pathOrStream)
 end
 
 ---@return XMLNode
+function XML:getRootNode()
+    return self._mData
+end
+
+---@return XMLNode
 function XML:getData()
     return self._mData
 end
