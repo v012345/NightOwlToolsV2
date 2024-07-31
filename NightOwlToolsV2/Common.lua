@@ -1,7 +1,57 @@
 require "Tools.XML"
 require "Tools.CSV"
 
----@param csv CSV
+Common = {}
+function Common.ShowOnOneline(out)
+    local out = "\r" .. out
+    local curLen = #out
+    out = out .. string.rep(" ", 100 - curLen)
+    io.write(out)
+end
+
+PublishResource = {}
+function PublishResource.CollectFiles(folder, suffix)
+    local allFiles = {}
+    local pattern = "^.+%" .. suffix .. "$"
+    for entry in lfs.dir(folder) do
+        local filePath = folder .. "/" .. entry
+        local fileAttributes = lfs.attributes(filePath)
+        if string.match(string.lower(filePath), pattern) then
+            Common.ShowOnOneline(entry)
+            allFiles[#allFiles + 1] = {
+                path = filePath,
+                name = entry,
+                modification = lfs.attributes(filePath, "modification")
+            }
+        end
+    end
+    return allFiles
+end
+
+function PublishResource.CollectImageRess(folder)
+    local allFiles = {}
+    local function TravelFiles(folder)
+        for entry in lfs.dir(folder) do
+            if entry ~= "." and entry ~= ".." then
+                local filePath = folder .. "/" .. entry
+                local fileAttributes = lfs.attributes(filePath)
+                if fileAttributes.mode == "directory" then
+                    TravelFiles(filePath)
+                elseif fileAttributes.mode == "file" then
+                    Common.ShowOnOneline(entry)
+                    allFiles[#allFiles + 1] = {
+                        path = filePath,
+                        name = entry,
+                        modification = lfs.attributes(filePath, "modification")
+                    }
+                end
+            end
+        end
+    end
+    TravelFiles(folder)
+    return allFiles
+end
+
 KoreanToChinese = {}
 function KoreanToChinese.csvToMapTable(csv)
     local map = {}
@@ -117,4 +167,27 @@ function KoreanToChinese.CsvToCsd(csd_path, csv, fileNum)
         csd:writeTo(filePath)
     end
     print()
+end
+
+Win32 = {}
+function Win32.getSha1(path)
+    local windows_path = string.gsub(path, "/", "\\")
+    local cmd = string.format('certutil -hashfile "%s"', windows_path)
+    local result = io.popen(cmd) or error("can't run " .. cmd)
+    local _, r = result:read("l"), result:read("l")
+    result:close()
+    return r
+end
+
+function Win32.copy(from, to)
+    local windows_from = string.gsub(from, "/", "\\")
+    local windows_to = string.gsub(to, "/", "\\")
+    local cmd = string.format('copy "%s" "%s" /Y', windows_from, windows_to)
+    local r = io.popen(cmd)
+    if not r then
+        error("can't run " .. cmd)
+    else
+        print(r:read("a"))
+        r:close()
+    end
 end
