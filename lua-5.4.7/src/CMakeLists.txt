@@ -1,12 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 project(liblua)
 
-# 定义是否构建为动态库的选项, 变动的话, 需要删除 build, 重新构建
-option(BUILD_SHARED_LIBS "Build liblua as a shared library" OFF)
-
-# 定义是否构建 lua.exe 与 luac.exe
-option(BUILD_LUA_AND_LUAC "Build lua.exe and luac.exe or not" OFF)
-
 set(LUA_SRC_CODE
     lapi.c
     lauxlib.c

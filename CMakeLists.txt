@@ -6,6 +6,12 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
+# 定义是否构建为动态库的选项, 变动的话, 需要删除 build, 重新构建
+option(BUILD_SHARED_LIBS "Build liblua as a shared library" OFF)
+
+# 定义是否构建 lua.exe 与 luac.exe
+option(BUILD_LUA_AND_LUAC "Build lua.exe and luac.exe or not" OFF)
+
 add_subdirectory("lua-5.4.7/src")
 add_subdirectory("extensions")
 
@@ -16,6 +22,7 @@ target_link_libraries(${PROJECT_NAME}
     liblua
     liblfs
     libluasocket
+    liblsqlite3
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE
