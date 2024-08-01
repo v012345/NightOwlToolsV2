@@ -9,7 +9,44 @@ function Common.ShowOnOneline(out)
     io.write(out)
 end
 
-PublishResource = {}
+function Common.EasyChecksum(str)
+    local l = #str
+    local h = 83600 ~ l
+    for i = l, 1, -1 do
+        h = h ~ ((h << 5) + (h >> 2) + string.byte(str, i, i))
+    end
+    return string.format("%x", h)
+end
+
+PublishResource = {
+    CocosTool = "C:\\Cocos\\Cocos Studio\\Cocos.Tool.exe",
+    PublishAll = false, -- 全部发布
+    RootFolders = { --
+    {
+        from = "D:/Closers.cocos/resource/ui/branches/dzogame_sea_v1/zhcn",
+        to = "D:/Closers.cocos/client/branches/dzogame_sea_v1/Resources/res_zhcn"
+    }, --
+    {
+        from = "D:/Closers.cocos/resource/ui/branches/dzogame_sea/zhcn",
+        to = "D:/Closers.cocos/client/branches/dzogame_sea/Resources/res_zhcn"
+    }, --
+    {
+        from = "D:/Closers.cocos/resource/ui/branches/online",
+        to = "D:/Closers.cocos/client/branches/online/Resources/res"
+    } --
+    }
+}
+function PublishResource.TouchTable(db, tableName)
+    return db:exec(string.format([[
+        CREATE TABLE %s (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            modification TIMESTAMP,
+            sha1 TEXT,
+            name TEXT,
+            relative_path TEXT
+        );
+]], tableName))
+end
 function PublishResource.CollectFiles(folder, suffix)
     local allFiles = {}
     local pattern = "^.+%" .. suffix .. "$"
@@ -25,6 +62,8 @@ function PublishResource.CollectFiles(folder, suffix)
             }
         end
     end
+    Common.ShowOnOneline("CollectFiles Done : " .. folder)
+    print()
     return allFiles
 end
 
