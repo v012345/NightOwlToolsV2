@@ -1,4 +1,4 @@
-local db = sqlite3.open('LocalOnly/BlackMoonUi.db')
+local db = sqlite3.open('LocalOnly/BlackMoon.db')
 for i, RootFolders in ipairs(PublishResource.RootFolders) do
     local RootFolder = RootFolders.from
     local uiTableNmae = "ui" .. Common.EasyChecksum(RootFolder)
@@ -6,7 +6,7 @@ for i, RootFolders in ipairs(PublishResource.RootFolders) do
     local uiFolder = RootFolder .. "/cocosstudio/ui"
     local uiRoot = RootFolder .. "/cocosstudio"
     local uiRootLen = #uiRoot + 2
-    local uiFiles = PublishResource.CollectFiles(uiFolder, ".csd")
+    local uiFiles = PublishResource.GetFilesCurrentState(uiFolder, ".csd")
     local toPublish = {}
     local lastState = {}
     local nowState = {}

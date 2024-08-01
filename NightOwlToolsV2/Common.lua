@@ -9,6 +9,14 @@ function Common.ShowOnOneline(out)
     io.write(out)
 end
 
+function Common.GetMapItemNum(map)
+    local total = 0
+    for k, v in pairs(map) do
+        total = total + 1
+    end
+    return total
+end
+
 function Common.EasyChecksum(str)
     local l = #str
     local h = 83600 ~ l
@@ -21,21 +29,125 @@ end
 PublishResource = {
     CocosTool = "C:\\Cocos\\Cocos Studio\\Cocos.Tool.exe",
     PublishAll = false, -- 全部发布
-    RootFolders = { --
+    Projects = { --
     {
         from = "D:/Closers.cocos/resource/ui/branches/dzogame_sea_v1/zhcn",
         to = "D:/Closers.cocos/client/branches/dzogame_sea_v1/Resources/res_zhcn"
-    }, --
-    {
-        from = "D:/Closers.cocos/resource/ui/branches/dzogame_sea/zhcn",
-        to = "D:/Closers.cocos/client/branches/dzogame_sea/Resources/res_zhcn"
-    }, --
-    {
-        from = "D:/Closers.cocos/resource/ui/branches/online",
-        to = "D:/Closers.cocos/client/branches/online/Resources/res"
     } --
+    -- {
+    --     from = "D:/Closers.cocos/resource/ui/branches/dzogame_sea/zhcn",
+    --     to = "D:/Closers.cocos/client/branches/dzogame_sea/Resources/res_zhcn"
+    -- }, --
+    -- {
+    --     from = "D:/Closers.cocos/resource/ui/branches/online",
+    --     to = "D:/Closers.cocos/client/branches/online/Resources/res"
+    -- } --
     }
 }
+
+---@param db userdata
+---@param table_name string
+---@param states state[]
+function PublishResource.UpdateTable(db, table_name, states)
+    local stmt = PublishResource.CreateSmart(db, table_name)
+    local total = Common.GetMapItemNum(states)
+    local i = 1
+    for k, v in pairs(states) do
+        Common.ShowOnOneline(string.format("update db %s/%s %s", i, total, v.name))
+        stmt:bind_names({
+            id = v.id,
+            modification = v.modification,
+            sha1 = Win32.getSha1(v.path),
+            name = v.name,
+            relative_path = v.relative_path,
+            path = v.path
+        })
+        stmt:step()
+        stmt:reset()
+        i = i + 1
+    end
+    if i == 1 then
+        print("update db 0/0")
+    else
+        print()
+    end
+    stmt:finalize()
+end
+
+---@return state
+function PublishResource.GetFileNowState(name, relative_path, path)
+    return {
+        id = nil,
+        path = path,
+        name = name,
+        modification = lfs.attributes(path, "modification"),
+        sha1 = nil,
+        relative_path = relative_path
+    }
+end
+
+function PublishResource.GetChangedImageOfPlist(db, plist_state, image_table_name, root_folder)
+    if string.sub(root_folder, #root_folder, #root_folder) ~= "/" then
+        root_folder = root_folder .. "/"
+    end
+    local images_current_states = {}
+    ---@type XMLNode[]
+    local ImageFiles = XML(plist_state.path):getRootNode():getChild(2):getChild(1):getChildren()
+    for i, v in ipairs(ImageFiles) do
+        local rp = v:getAttributeValue("Path")
+        images_current_states[rp] = PublishResource.GetFileNowState(rp, rp, root_folder .. rp)
+    end
+    PublishResource.TouchTable(db, image_table_name)
+    local image_last_state = PublishResource.GetLastStates(db, image_table_name)
+    local to_publish_image = PublishResource.GetPublishState(images_current_states, image_last_state)
+    return to_publish_image
+end
+
+---@param now state[]
+---@param last state[]
+---@return state[],state[]
+function PublishResource.GetPublishState(now, last)
+    local need_publish_state = {}
+    local unneed_publish_state = {}
+    for k, v in pairs(now) do
+        local old = last[k]
+        if old then
+            v.id = old.id
+            if old.modification < v.modification and Win32.getSha1(v.path) ~= old.sha1 then
+                need_publish_state[k] = v
+            else
+                unneed_publish_state[k] = v
+            end
+        else
+            need_publish_state[k] = v
+        end
+    end
+    return need_publish_state, unneed_publish_state
+end
+
+---@return state[]
+function PublishResource.GetLastStates(db, tableName)
+    local last_states = {}
+    for row in db:nrows("SELECT * FROM " .. tableName) do
+        last_states[row.relative_path] = {
+            id = row.id,
+            name = row.name,
+            sha1 = row.sha1,
+            modification = row.modification,
+            relative_path = row.relative_path,
+            path = row.path
+        }
+    end
+    Common.ShowOnOneline("GetLastStates Ok : " .. tableName)
+    print()
+    return last_states
+end
+
+function PublishResource.CreateSmart(db, tableName)
+    return db:prepare(string.format(
+        "INSERT OR REPLACE INTO %s (id,modification,sha1,name,relative_path,path) VALUES (:id,:modification,:sha1,:name,:relative_path,:path)",
+        tableName))
+end
 function PublishResource.TouchTable(db, tableName)
     return db:exec(string.format([[
         CREATE TABLE %s (
@@ -43,11 +155,23 @@ function PublishResource.TouchTable(db, tableName)
             modification TIMESTAMP,
             sha1 TEXT,
             name TEXT,
+            path TEXT,
             relative_path TEXT
         );
 ]], tableName))
 end
-function PublishResource.CollectFiles(folder, suffix)
+
+--- func desc
+---@param folder string
+---@param suffix string
+---@param root_folder string
+---@return state[]
+function PublishResource.GetFilesCurrentState(folder, suffix, root_folder)
+    if string.sub(root_folder, #root_folder, #root_folder) ~= "/" then
+        root_folder = root_folder .. "/"
+    end
+    local cut_start_index = #root_folder + 1
+    ---@type state[]
     local allFiles = {}
     local pattern = "^.+%" .. suffix .. "$"
     for entry in lfs.dir(folder) do
@@ -55,14 +179,19 @@ function PublishResource.CollectFiles(folder, suffix)
         local fileAttributes = lfs.attributes(filePath)
         if string.match(string.lower(filePath), pattern) then
             Common.ShowOnOneline(entry)
-            allFiles[#allFiles + 1] = {
+            ---@class state
+            local state = {
+                id = nil,
                 path = filePath,
                 name = entry,
-                modification = lfs.attributes(filePath, "modification")
+                modification = lfs.attributes(filePath, "modification"),
+                sha1 = nil,
+                relative_path = string.sub(filePath, cut_start_index, #filePath)
             }
+            allFiles[state.relative_path] = state
         end
     end
-    Common.ShowOnOneline("CollectFiles Done : " .. folder)
+    Common.ShowOnOneline("GetFilesCurrentState Ok : " .. folder)
     print()
     return allFiles
 end
