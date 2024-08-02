@@ -42,8 +42,8 @@ PublishResource = {
     PublishAll = false, -- 全部发布
     Projects = { --
     {
-        from = "D:/Closers.cocos/resource/ui/branches/dzogame_sea_v1/zhcn",
-        to = "D:/Closers.cocos/client/branches/dzogame_sea_v1/Resources/res_zhcn"
+        from = "D:/Closers.cocos/resource/ui/branches/qooapp/zhtw",
+        to = "D:/Closers.cocos/client/branches/qooapp/Resources/res_zhtw"
         -- to = "D:/NightOwlToolsV2/NightOwlToolsV2/LocalOnly"
     } --
     -- {
@@ -298,7 +298,6 @@ function PublishResource.GetStates(folder, suffix, root_folder)
     end
     return states
 end
-
 
 KoreanToChinese = {}
 function KoreanToChinese.csvToMapTable(csv)
