@@ -17,6 +17,17 @@ function Common.GetMapItemNum(map)
     return total
 end
 
+function Common.Split(inputstr, sep)
+    if sep == nil then
+        sep = "%s"
+    end
+    local t = {}
+    for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
+        table.insert(t, str)
+    end
+    return t
+end
+
 function Common.EasyChecksum(str)
     local l = #str
     local h = 83600 ~ l
@@ -33,6 +44,7 @@ PublishResource = {
     {
         from = "D:/Closers.cocos/resource/ui/branches/dzogame_sea_v1/zhcn",
         to = "D:/Closers.cocos/client/branches/dzogame_sea_v1/Resources/res_zhcn"
+        -- to = "D:/NightOwlToolsV2/NightOwlToolsV2/LocalOnly"
     } --
     -- {
     --     from = "D:/Closers.cocos/resource/ui/branches/dzogame_sea/zhcn",
@@ -42,14 +54,95 @@ PublishResource = {
     --     from = "D:/Closers.cocos/resource/ui/branches/online",
     --     to = "D:/Closers.cocos/client/branches/online/Resources/res"
     -- } --
-    }
+    },
+    CCS_Template = [[
+<Solution>
+	<PropertyGroup Name="Closers" Version="3.10.0.0" Type="CocosStudio" />
+	<SolutionFolder>
+		<Group ctype="ResourceGroup">
+			<RootFolder Name=".">
+				<Folder Name="image"></Folder>
+				<Folder Name="piece"></Folder>
+				<Folder Name="plist"></Folder>
+				<Folder Name="ui"></Folder>
+			</RootFolder>
+		</Group>
+	</SolutionFolder>
+</Solution>
+]]
 }
+function PublishResource.PublishPlist(states_will_publish, css_file_place_path, publish_directory,
+    cocosstudio_directory_path)
+    local num = Common.GetMapItemNum(states_will_publish)
+    if num <= 0 then
+        return
+    end
+    ---@type XML
+    local css_file_template = XML(PublishResource.CCS_Template)
+
+    ---@type XMLNode
+    local RootFolder_node = css_file_template:getRootNode():getChild(2):getChild(1):getChild(1)
+    for i, v in pairs(states_will_publish) do
+        print(v.name)
+        local ImageFiles_node = XML(v.path):getRootNode():getChild(2):getChild(1):getChildren()
+        for i, v in ipairs(ImageFiles_node) do
+            local rp = v:getAttributeValue("Path")
+            local node_temp = RootFolder_node
+            local temp_cocosstudio_directory_path = cocosstudio_directory_path
+            for k, v in pairs(Common.Split(rp, "/")) do
+                temp_cocosstudio_directory_path = temp_cocosstudio_directory_path .. "/" .. v
+                local fileAttributes = lfs.attributes(temp_cocosstudio_directory_path)
+                if fileAttributes.mode == "directory" then
+                    local sub_node = node_temp:getChildByAttri("Name", v)
+                    if not sub_node then
+                        sub_node = XML:newNode("Folder")
+                        sub_node:setAttributeValue("Name", v)
+                        node_temp:addChild(sub_node)
+                    end
+                    node_temp = sub_node
+                elseif fileAttributes.mode == "file" then
+                    local sub_node = node_temp:getChildByAttri("Name", v)
+                    if not sub_node then
+                        sub_node = XML:newNode("Image")
+                        sub_node:setAttributeValue("Name", v)
+                        node_temp:addChild(sub_node)
+                    end
+                end
+            end
+        end
+    end
+    ---@type XMLNode
+    local ui_node = css_file_template:getRootNode():getChild(2):getChild(1):getChild(1):getChildByAttri("Name", "plist")
+    for i, v in pairs(states_will_publish) do
+        ---@type XMLNode
+        local newNode = XML:newNode("PlistInfo")
+        newNode:setAttributeValue("Name", v.name)
+        newNode:setAttributeValue("Type", "Plist")
+        ui_node:addChild(newNode)
+    end
+    local temp_css_file = css_file_place_path .. "/temp_css_file.ccs"
+    css_file_template:writeTo(temp_css_file)
+    Common.ShowOnOneline("start publish, please wait")
+    local cocos_cmd = '"%s" publish -f %s -o %s -s -d Serializer_FlatBuffers'
+    local cmd = string.format(cocos_cmd, PublishResource.CocosTool, temp_css_file, publish_directory)
+    local exe_cmd = io.popen(cmd) or error("can't execute " .. cocos_cmd)
+    local result = exe_cmd:read("a")
+    exe_cmd:close()
+    os.remove(temp_css_file)
+    if string.find(result, "Publish success!") then
+        Common.ShowOnOneline("Publish success!")
+        print()
+    else
+        error(result)
+    end
+end
 
 ---@param db userdata
 ---@param table_name string
 ---@param states state[]
 function PublishResource.UpdateTable(db, table_name, states)
     local stmt = PublishResource.CreateSmart(db, table_name)
+
     local total = Common.GetMapItemNum(states)
     local i = 1
     for k, v in pairs(states) do
@@ -138,8 +231,6 @@ function PublishResource.GetLastStates(db, tableName)
             path = row.path
         }
     end
-    Common.ShowOnOneline("GetLastStates Ok : " .. tableName)
-    print()
     return last_states
 end
 
@@ -178,7 +269,6 @@ function PublishResource.GetFilesCurrentState(folder, suffix, root_folder)
         local filePath = folder .. "/" .. entry
         local fileAttributes = lfs.attributes(filePath)
         if string.match(string.lower(filePath), pattern) then
-            Common.ShowOnOneline(entry)
             ---@class state
             local state = {
                 id = nil,
@@ -191,8 +281,6 @@ function PublishResource.GetFilesCurrentState(folder, suffix, root_folder)
             allFiles[state.relative_path] = state
         end
     end
-    Common.ShowOnOneline("GetFilesCurrentState Ok : " .. folder)
-    print()
     return allFiles
 end
 
