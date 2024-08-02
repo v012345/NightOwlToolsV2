@@ -71,84 +71,63 @@ PublishResource = {
 </Solution>
 ]]
 }
-function PublishResource.PublishPlist(states_will_publish, css_file_place_path, publish_directory,
-    cocosstudio_directory_path)
-    local num = Common.GetMapItemNum(states_will_publish)
-    if num <= 0 then
-        return
-    end
+
+function PublishResource.PublishPlist(states_will_publish, css_file_place_path, publish_directory, cocosstudio_directory)
     ---@type XML
     local css_file_template = XML(PublishResource.CCS_Template)
-
+    local root_node = css_file_template:getRootNode()
     ---@type XMLNode
-    local RootFolder_node = css_file_template:getRootNode():getChild(2):getChild(1):getChild(1)
-    for i, v in pairs(states_will_publish) do
-        print(v.name)
-        local ImageFiles_node = XML(v.path):getRootNode():getChild(2):getChild(1):getChildren()
-        for i, v in ipairs(ImageFiles_node) do
-            local rp = v:getAttributeValue("Path")
-            local node_temp = RootFolder_node
-            local temp_cocosstudio_directory_path = cocosstudio_directory_path
+    local RootFolder_node = root_node:getChild(2):getChild(1):getChild(1)
+    local plist_node = root_node:getChild(2):getChild(1):getChild(1):getChildByAttri("Name", "plist")
+
+    for _, plist_state in pairs(states_will_publish) do
+        local PlistInfo_node = XML:newNode("PlistInfo")
+        PlistInfo_node:setAttributeValue("Name", plist_state.name)
+        PlistInfo_node:setAttributeValue("Type", "Plist")
+        plist_node:addChild(PlistInfo_node)
+
+        local ImageFiles_node = XML(plist_state.path):getRootNode():getChild(2):getChild(1):getChildren()
+        for i, image_node in ipairs(ImageFiles_node) do
+            local rp = image_node:getAttributeValue("Path")
+            local temp_node = RootFolder_node
+            local temp_directory = cocosstudio_directory
             for k, v in pairs(Common.Split(rp, "/")) do
-                temp_cocosstudio_directory_path = temp_cocosstudio_directory_path .. "/" .. v
-                local fileAttributes = lfs.attributes(temp_cocosstudio_directory_path)
-                if fileAttributes.mode == "directory" then
-                    local sub_node = node_temp:getChildByAttri("Name", v)
-                    if not sub_node then
-                        sub_node = XML:newNode("Folder")
-                        sub_node:setAttributeValue("Name", v)
-                        node_temp:addChild(sub_node)
+                temp_directory = temp_directory .. "/" .. v
+                local file_attributes = lfs.attributes(temp_directory)
+                if file_attributes.mode == "directory" then
+                    local Folder_node = temp_node:getChildByAttri("Name", v)
+                    if not Folder_node then
+                        Folder_node = XML:newNode("Folder")
+                        Folder_node:setAttributeValue("Name", v)
+                        temp_node:addChild(Folder_node)
                     end
-                    node_temp = sub_node
-                elseif fileAttributes.mode == "file" then
-                    local sub_node = node_temp:getChildByAttri("Name", v)
-                    if not sub_node then
-                        sub_node = XML:newNode("Image")
-                        sub_node:setAttributeValue("Name", v)
-                        node_temp:addChild(sub_node)
+                    temp_node = Folder_node
+                elseif file_attributes.mode == "file" then
+                    local Image_node = temp_node:getChildByAttri("Name", v)
+                    if not Image_node then
+                        Image_node = XML:newNode("Image")
+                        Image_node:setAttributeValue("Name", v)
+                        temp_node:addChild(Image_node)
                     end
                 end
             end
         end
     end
-    ---@type XMLNode
-    local ui_node = css_file_template:getRootNode():getChild(2):getChild(1):getChild(1):getChildByAttri("Name", "plist")
-    for i, v in pairs(states_will_publish) do
-        ---@type XMLNode
-        local newNode = XML:newNode("PlistInfo")
-        newNode:setAttributeValue("Name", v.name)
-        newNode:setAttributeValue("Type", "Plist")
-        ui_node:addChild(newNode)
-    end
+
     local temp_css_file = css_file_place_path .. "/temp_css_file.ccs"
     css_file_template:writeTo(temp_css_file)
-    Common.ShowOnOneline("start publish, please wait")
-    local cocos_cmd = '"%s" publish -f %s -o %s -s -d Serializer_FlatBuffers'
-    local cmd = string.format(cocos_cmd, PublishResource.CocosTool, temp_css_file, publish_directory)
-    local exe_cmd = io.popen(cmd) or error("can't execute " .. cocos_cmd)
-    local result = exe_cmd:read("a")
-    exe_cmd:close()
-    os.remove(temp_css_file)
-    if string.find(result, "Publish success!") then
-        Common.ShowOnOneline("Publish success!")
-        print()
-    else
-        error(result)
+    if Common.GetMapItemNum(states_will_publish) > 0 then
+        PublishResource.StartPublish(temp_css_file, publish_directory)
     end
+    os.remove(temp_css_file)
 end
 
-function PublishResource.PublishCsd(states_will_publish, css_file_place_path, publish_directory,
-    cocosstudio_directory_path)
-    local num = Common.GetMapItemNum(states_will_publish)
-    if num <= 0 then
-        return
-    end
+function PublishResource.PublishCsd(states_will_publish, css_file_place_path, publish_directory)
     ---@type XML
     local css_file_template = XML(PublishResource.CCS_Template)
+    local root_node = css_file_template:getRootNode()
     ---@type XMLNode
-    local Folder_node = css_file_template:getRootNode():getChild(2):getChild(1):getChild(1)
-        :getChildByAttri("Name", "ui")
-    --  <Project Name="UiAccessTypeBuy.csd" Type="Layer" />
+    local Folder_node = root_node:getChild(2):getChild(1):getChild(1):getChildByAttri("Name", "ui")
     for i, v in pairs(states_will_publish) do
         ---@type XMLNode
         local newNode = XML:newNode("Project")
@@ -158,25 +137,26 @@ function PublishResource.PublishCsd(states_will_publish, css_file_place_path, pu
     end
     local temp_css_file = css_file_place_path .. "/temp_css_file.ccs"
     css_file_template:writeTo(temp_css_file)
-    PublishResource.StartPublish(temp_css_file, publish_directory)
+    if Common.GetMapItemNum(states_will_publish) > 0 then
+        PublishResource.StartPublish(temp_css_file, publish_directory)
+    end
+    os.remove(temp_css_file)
 end
 
 function PublishResource.StartPublish(css_file, publish_directory)
+    local start_time = os.time()
     Common.ShowOnOneline("start publish, please wait")
     local cocos_cmd = '"%s" publish -f %s -o %s -s -d Serializer_FlatBuffers'
     local cmd = string.format(cocos_cmd, PublishResource.CocosTool, css_file, publish_directory)
     local exe_cmd = io.popen(cmd) or error("can't execute " .. cocos_cmd)
     local result = exe_cmd:read("a")
     exe_cmd:close()
-    -- os.remove(css_file)
-    print()
-    print(result)
-    print("jjjjj")
     if string.find(result, "Publish success!") then
-        Common.ShowOnOneline("Publish success!")
+        Common.ShowOnOneline(string.format("Publish success! spent %ss", os.time() - start_time))
     else
         error(result)
     end
+    print()
 end
 
 ---@param db userdata
@@ -209,55 +189,48 @@ function PublishResource.UpdateTable(db, table_name, states)
     stmt:finalize()
 end
 
----@return state
-function PublishResource.GetFileNowState(name, relative_path, path)
-    return {
-        id = nil,
-        path = path,
-        name = name,
-        modification = lfs.attributes(path, "modification"),
-        sha1 = nil,
-        relative_path = relative_path
-    }
-end
-
-function PublishResource.GetChangedImageOfPlist(db, plist_state, image_table_name, root_folder)
-    if string.sub(root_folder, #root_folder, #root_folder) ~= "/" then
-        root_folder = root_folder .. "/"
+function PublishResource.ChangedImages(db, plist_state, cocosstudio_directory)
+    if string.sub(cocosstudio_directory, #cocosstudio_directory, #cocosstudio_directory) ~= "/" then
+        cocosstudio_directory = cocosstudio_directory .. "/"
     end
-    local images_current_states = {}
+    local image_states = {}
+    local image_table_name = "image" .. Common.EasyChecksum(plist_state.path)
     ---@type XMLNode[]
     local ImageFiles = XML(plist_state.path):getRootNode():getChild(2):getChild(1):getChildren()
     for i, v in ipairs(ImageFiles) do
         local rp = v:getAttributeValue("Path")
-        images_current_states[rp] = PublishResource.GetFileNowState(rp, rp, root_folder .. rp)
+        image_states[rp] = {
+            path = cocosstudio_directory .. rp,
+            name = rp,
+            modification = lfs.attributes(cocosstudio_directory .. rp, "modification"),
+            relative_path = rp
+        }
     end
     PublishResource.TouchTable(db, image_table_name)
     local image_last_state = PublishResource.GetLastStates(db, image_table_name)
-    local to_publish_image = PublishResource.GetPublishState(images_current_states, image_last_state)
-    return to_publish_image
+    return (PublishResource.Compare(image_states, image_last_state))
 end
 
 ---@param now state[]
 ---@param last state[]
 ---@return state[],state[]
-function PublishResource.GetPublishState(now, last)
-    local need_publish_state = {}
-    local unneed_publish_state = {}
-    for k, v in pairs(now) do
-        local old = last[k]
-        if old then
-            v.id = old.id
-            if old.modification < v.modification and Win32.getSha1(v.path) ~= old.sha1 then
-                need_publish_state[k] = v
+function PublishResource.Compare(states_now, states_last)
+    local states_have_changed = {}
+    local states_not_changed = {}
+    for k, state_now in pairs(states_now) do
+        local state_old = states_last[k]
+        if state_old then
+            state_now.id = state_old.id
+            if state_old.modification < state_now.modification and Win32.getSha1(state_now.path) ~= state_old.sha1 then
+                states_have_changed[k] = state_now
             else
-                unneed_publish_state[k] = v
+                states_not_changed[k] = state_now
             end
         else
-            need_publish_state[k] = v
+            states_have_changed[k] = state_now
         end
     end
-    return need_publish_state, unneed_publish_state
+    return states_have_changed, states_not_changed
 end
 
 ---@return state[]
@@ -299,17 +272,17 @@ end
 ---@param suffix string
 ---@param root_folder string
 ---@return state[]
-function PublishResource.GetFilesCurrentState(folder, suffix, root_folder)
+function PublishResource.GetStates(folder, suffix, root_folder)
     if string.sub(root_folder, #root_folder, #root_folder) ~= "/" then
         root_folder = root_folder .. "/"
     end
-    local cut_start_index = #root_folder + 1
+    local start_index = #root_folder + 1
+    suffix = string.lower(suffix)
     ---@type state[]
-    local allFiles = {}
-    local pattern = "^.+%" .. suffix .. "$"
+    local states = {}
+    local pattern = "^.+%." .. suffix .. "$"
     for entry in lfs.dir(folder) do
         local filePath = folder .. "/" .. entry
-        local fileAttributes = lfs.attributes(filePath)
         if string.match(string.lower(filePath), pattern) then
             ---@class state
             local state = {
@@ -318,37 +291,14 @@ function PublishResource.GetFilesCurrentState(folder, suffix, root_folder)
                 name = entry,
                 modification = lfs.attributes(filePath, "modification"),
                 sha1 = nil,
-                relative_path = string.sub(filePath, cut_start_index, #filePath)
+                relative_path = string.sub(filePath, start_index, #filePath)
             }
-            allFiles[state.relative_path] = state
+            states[state.relative_path] = state
         end
     end
-    return allFiles
+    return states
 end
 
-function PublishResource.CollectImageRess(folder)
-    local allFiles = {}
-    local function TravelFiles(folder)
-        for entry in lfs.dir(folder) do
-            if entry ~= "." and entry ~= ".." then
-                local filePath = folder .. "/" .. entry
-                local fileAttributes = lfs.attributes(filePath)
-                if fileAttributes.mode == "directory" then
-                    TravelFiles(filePath)
-                elseif fileAttributes.mode == "file" then
-                    Common.ShowOnOneline(entry)
-                    allFiles[#allFiles + 1] = {
-                        path = filePath,
-                        name = entry,
-                        modification = lfs.attributes(filePath, "modification")
-                    }
-                end
-            end
-        end
-    end
-    TravelFiles(folder)
-    return allFiles
-end
 
 KoreanToChinese = {}
 function KoreanToChinese.csvToMapTable(csv)
