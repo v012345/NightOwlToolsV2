@@ -5,7 +5,7 @@ xpcall(function()
     -- require "KoreanToChinese.KoreanToChinese"
     -- require "KoreanToChinese.ReplaceTextToCsd"
     -- require "KoreanToChinese.FilterReplaceText"
-    -- require "PublishResource.PublishCsd"
+    require "PublishResource.PublishCsd"
     require "PublishResource.PublishPlist"
 end, function(msg)
     print(msg)

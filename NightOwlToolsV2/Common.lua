@@ -137,6 +137,48 @@ function PublishResource.PublishPlist(states_will_publish, css_file_place_path, 
     end
 end
 
+function PublishResource.PublishCsd(states_will_publish, css_file_place_path, publish_directory,
+    cocosstudio_directory_path)
+    local num = Common.GetMapItemNum(states_will_publish)
+    if num <= 0 then
+        return
+    end
+    ---@type XML
+    local css_file_template = XML(PublishResource.CCS_Template)
+    ---@type XMLNode
+    local Folder_node = css_file_template:getRootNode():getChild(2):getChild(1):getChild(1)
+        :getChildByAttri("Name", "ui")
+    --  <Project Name="UiAccessTypeBuy.csd" Type="Layer" />
+    for i, v in pairs(states_will_publish) do
+        ---@type XMLNode
+        local newNode = XML:newNode("Project")
+        newNode:setAttributeValue("Name", v.name)
+        newNode:setAttributeValue("Type", "Layer")
+        Folder_node:addChild(newNode)
+    end
+    local temp_css_file = css_file_place_path .. "/temp_css_file.ccs"
+    css_file_template:writeTo(temp_css_file)
+    PublishResource.StartPublish(temp_css_file, publish_directory)
+end
+
+function PublishResource.StartPublish(css_file, publish_directory)
+    Common.ShowOnOneline("start publish, please wait")
+    local cocos_cmd = '"%s" publish -f %s -o %s -s -d Serializer_FlatBuffers'
+    local cmd = string.format(cocos_cmd, PublishResource.CocosTool, css_file, publish_directory)
+    local exe_cmd = io.popen(cmd) or error("can't execute " .. cocos_cmd)
+    local result = exe_cmd:read("a")
+    exe_cmd:close()
+    -- os.remove(css_file)
+    print()
+    print(result)
+    print("jjjjj")
+    if string.find(result, "Publish success!") then
+        Common.ShowOnOneline("Publish success!")
+    else
+        error(result)
+    end
+end
+
 ---@param db userdata
 ---@param table_name string
 ---@param states state[]
