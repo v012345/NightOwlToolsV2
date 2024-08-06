@@ -39,21 +39,22 @@ end
 
 PublishResource = {
     CocosTool = "C:\\Cocos\\Cocos Studio\\Cocos.Tool.exe",
+    DB_Path = "LocalOnly/PublishResource.db",
     PublishAll = false, -- 全部发布
-    Projects = { --
-    {
-        from = "D:/Closers.cocos/resource/ui/branches/qooapp/zhtw",
-        to = "D:/Closers.cocos/client/branches/qooapp/Resources/res_zhtw"
-        -- to = "D:/NightOwlToolsV2/NightOwlToolsV2/LocalOnly"
-    } --
-    -- {
-    --     from = "D:/Closers.cocos/resource/ui/branches/dzogame_sea/zhcn",
-    --     to = "D:/Closers.cocos/client/branches/dzogame_sea/Resources/res_zhcn"
-    -- }, --
-    -- {
-    --     from = "D:/Closers.cocos/resource/ui/branches/online",
-    --     to = "D:/Closers.cocos/client/branches/online/Resources/res"
-    -- } --
+    Projects = {        --
+        {
+            source = "D:/Closers.cocos/resource/ui/branches/qooapp/zhtw",
+            target = "D:/Closers.cocos/client/branches/qooapp/Resources/res_zhtw"
+            -- to = "D:/NightOwlToolsV2/NightOwlToolsV2/LocalOnly"
+        } --
+        -- {
+        --     from = "D:/Closers.cocos/resource/ui/branches/dzogame_sea/zhcn",
+        --     to = "D:/Closers.cocos/client/branches/dzogame_sea/Resources/res_zhcn"
+        -- }, --
+        -- {
+        --     from = "D:/Closers.cocos/resource/ui/branches/online",
+        --     to = "D:/Closers.cocos/client/branches/online/Resources/res"
+        -- } --
     },
     CCS_Template = [[
 <Solution>
@@ -71,6 +72,110 @@ PublishResource = {
 </Solution>
 ]]
 }
+
+function PublishResource:init()
+    local DB = sqlite3.open(self.DB_Path)
+    local iterator, sqlite_vm = DB:nrows("SELECT name FROM sqlite_master WHERE type='table' AND name='FileStates';")
+    if not iterator(sqlite_vm) then
+        DB:exec [[
+            CREATE TABLE FileStates (
+                path PRIMARY KEY,
+                modification TIMESTAMP,
+                sha1 TEXT )
+            ]]
+    end
+    local stmt = DB:prepare [[
+            INSERT OR REPLACE INTO FileStates
+            (modification,sha1,path)
+            VALUES (:modification,:sha1,:path)
+    ]]
+
+    self.UpdateOrInsert = function(file_state)
+        stmt:bind_names(file_state)
+        stmt:step()
+        stmt:reset()
+    end
+
+    local stmt = DB:prepare("SELECT * FROM FileStates WHERE path = ?")
+    self.GetInfoByPath = function(path)
+        stmt:bind_values(path)
+        local result = stmt:step()
+        local row = nil
+        if result == sqlite3.ROW then
+            row = stmt:get_named_values()
+        end
+        stmt:reset()
+        return row
+    end
+end
+
+PublishResource:init()
+
+function PublishResource.CheckModification(paths)
+    local modified = {}
+    local unchanged = {}
+    local touched = {}
+    for _, path in ipairs(paths) do
+        local old = PublishResource.GetInfoByPath(path)
+        if old then
+            local modification = lfs.attributes(path, "modification")
+            if old.modification < modification then
+                Common.ShowOnOneline("checksum " .. path)
+                local sha1 = Win32.getSha1(path)
+                if sha1 ~= old.sha1 then
+                    print(old.sha1)
+                    print(sha1)
+                    table.insert(modified, path)
+                else
+                    table.insert(unchanged, path)
+                    table.insert(touched, path)
+                end
+            else
+                table.insert(unchanged, path)
+            end
+        else
+            table.insert(modified, path)
+        end
+    end
+    return modified, unchanged, touched
+end
+
+function PublishResource.GetFilesOfDir(folder, suffix)
+    suffix = string.lower(suffix)
+    local pattern = "^.+%." .. suffix .. "$"
+    local files = {}
+    for entry in lfs.dir(folder) do
+        local filePath = folder .. "/" .. entry
+        local file_attributes = lfs.attributes(filePath)
+        -- if file_attributes.mode == "file" then
+        if string.match(string.lower(filePath), pattern) then
+            files[#files + 1] = filePath
+        end
+        -- end
+    end
+    return files
+end
+
+function PublishResource.PublishUi(states_will_publish, css_file_place_path, publish_directory)
+    ---@type XML
+    local css_file_template = XML(PublishResource.CCS_Template)
+    local root_node = css_file_template:getRootNode()
+    ---@type XMLNode
+    local Folder_node = root_node:getChild(2):getChild(1):getChild(1):getChildByAttri("Name", "ui")
+    for _, name in ipairs(states_will_publish) do
+        ---@type XMLNode
+        local newNode = XML:newNode("Project")
+        newNode:setAttributeValue("Name", name)
+        newNode:setAttributeValue("Type", "Layer")
+        Folder_node:addChild(newNode)
+    end
+    local temp_css_file = css_file_place_path .. "/temp_css_file.ccs"
+    css_file_template:writeTo(temp_css_file)
+    if Common.GetMapItemNum(states_will_publish) > 0 then
+        PublishResource.StartPublish(temp_css_file, publish_directory)
+    end
+    os.remove(temp_css_file)
+end
 
 function PublishResource.PublishPlist(states_will_publish, css_file_place_path, publish_directory, cocosstudio_directory)
     ---@type XML
@@ -254,6 +359,7 @@ function PublishResource.CreateSmart(db, tableName)
         "INSERT OR REPLACE INTO %s (id,modification,sha1,name,relative_path,path) VALUES (:id,:modification,:sha1,:name,:relative_path,:path)",
         tableName))
 end
+
 function PublishResource.TouchTable(db, tableName)
     return db:exec(string.format([[
         CREATE TABLE %s (
@@ -338,7 +444,7 @@ end
 ---@param node XMLNode
 ---@param toCsv CSV
 function KoreanToChinese.extractText(csdName, node, toCsv)
-    local attributes = {"ButtonText", "LabelText", "PlaceHolderText"}
+    local attributes = { "ButtonText", "LabelText", "PlaceHolderText" }
     for i, attri in ipairs(attributes) do
         if node:getAttributeValue(attri) then
             local row = toCsv:getRowNumber() + 1
@@ -381,7 +487,7 @@ end
 ---@param node XMLNode
 ---@param fromMap any
 function KoreanToChinese.replaceText(csdName, node, fromMap)
-    local attributes = {"ButtonText", "LabelText", "PlaceHolderText"}
+    local attributes = { "ButtonText", "LabelText", "PlaceHolderText" }
     for i, attri in ipairs(attributes) do
         if node:getAttributeValue(attri) then
             local tag = node:getAttributeValue("Tag")
