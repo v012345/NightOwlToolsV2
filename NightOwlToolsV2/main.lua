@@ -7,10 +7,12 @@ xpcall(function()
     -- require "KoreanToChinese.ReplaceTextToCsd"
     -- require "KoreanToChinese.FilterReplaceText"
     require "PublishResource.PublishCsd"
-    -- require "PublishResource.PublishPlist"
+    require "PublishResource.PublishPlist"
 
     PublishResource:realse()
 
 end, function(msg)
     print(msg)
 end)
+
+

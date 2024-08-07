@@ -5,7 +5,9 @@ for i, project in ipairs(PublishResource.Projects) do
     local to_publish = {table.unpack(new_file)}
     table.move(modified, 1, #modified, #to_publish + 1, to_publish)
     PublishResource.UpdateModification(to_update)
-    PublishResource.PublishUi(to_publish, project.source, project.target)
+    if #to_publish > 0 then
+        PublishResource.PublishUi(to_publish, project.source, project.target)
+    end
     PublishResource.UpdateFileState(modified)
     PublishResource.InsertFileState(new_file)
     print("csd publish " .. #to_publish .. " files")

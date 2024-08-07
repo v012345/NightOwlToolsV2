@@ -123,7 +123,10 @@ end
 function PublishResource:realse()
     assert(self.mem_db:exec("ATTACH DATABASE 'LocalOnly/PublishResource.db' AS disk_db") == sqlite3.OK)
     assert(self.mem_db:exec("DELETE FROM disk_db.file_state") == sqlite3.OK)
-    assert(self.mem_db:exec("INSERT INTO disk_db.file_state SELECT * FROM file_state") == sqlite3.OK)
+    if self.mem_db:exec("INSERT INTO disk_db.file_state SELECT * FROM file_state") ~= sqlite3.OK then
+        print(self.mem_db:errmsg())
+    end
+    -- assert(self.mem_db:exec("INSERT INTO disk_db.file_state SELECT * FROM file_state") == sqlite3.OK)
     assert(self.mem_db:exec("DETACH DATABASE disk_db") == sqlite3.OK)
     self.mem_db:close()
 end
@@ -137,12 +140,13 @@ function PublishResource.InsertFileState(to_insert_files)
         local md5 = Common.Md5(path)
         queries[i] = string.format(update_query, path, modification, md5)
     end
-    update_query = table.concat(queries)
-    PublishResource.mem_db:exec(update_query)
+
     if to_update_num > 0 then
         print()
+        update_query = table.concat(queries)
+        PublishResource.mem_db:exec(update_query)
+        print("insert state : " .. to_update_num)
     end
-    print("insert state : " .. to_update_num)
 end
 
 function PublishResource.UpdateFileState(to_update_files)
@@ -154,9 +158,11 @@ function PublishResource.UpdateFileState(to_update_files)
         local md5 = Common.Md5(path)
         queries[i] = string.format(update_query, modification, md5, path)
     end
-    update_query = table.concat(queries)
-    PublishResource.mem_db:exec(update_query)
-    print("update state : " .. to_update_num)
+    if to_update_num > 0 then
+        update_query = table.concat(queries)
+        PublishResource.mem_db:exec(update_query)
+        print("update state : " .. to_update_num)
+    end
 end
 
 function PublishResource.UpdateModification(to_update_files)
@@ -167,9 +173,11 @@ function PublishResource.UpdateModification(to_update_files)
         local modification = lfs.attributes(path, "modification")
         queries[i] = string.format(update_query, modification, path)
     end
-    update_query = table.concat(queries)
-    PublishResource.mem_db:exec(update_query)
-    print("touch  state : " .. to_update_num)
+    if to_update_num > 0 then
+        update_query = table.concat(queries)
+        PublishResource.mem_db:exec(update_query)
+        print("touch  state : " .. to_update_num)
+    end
 end
 
 function PublishResource.CheckFileState(paths)
@@ -188,7 +196,6 @@ function PublishResource.CheckFileState(paths)
                 if md5 ~= old.md5 then
                     table.insert(modified, path)
                 else
-                    table.insert(unchanged, path)
                     table.insert(touched, path)
                 end
             else
@@ -202,6 +209,77 @@ function PublishResource.CheckFileState(paths)
         print()
     end
     return new, modified, touched, unchanged
+end
+
+function PublishResource.CheckImageState(paths)
+    local new = {}
+    local modified = {}
+    local touched = {}
+    local unchanged = {}
+    local total = #paths
+    for i, path in ipairs(paths) do
+        local old = PublishResource.GetInfoByPath(path)
+        if old then
+            local modification = lfs.attributes(path, "modification")
+            if old.modification < modification then
+                local md5 = Common.Md5(path)
+                if md5 ~= old.md5 then
+                    table.insert(modified, path)
+                else
+                    table.insert(touched, path)
+                end
+            else
+                table.insert(unchanged, path)
+            end
+        else
+            table.insert(new, path)
+        end
+    end
+    return new, modified, touched, unchanged
+end
+
+function PublishResource.UpdateImageState(to_update_files)
+    local to_update_num = #to_update_files
+    local update_query = "UPDATE file_state SET modification = %s,md5 = '%s' WHERE path = '%s';"
+    local queries = {}
+    for i, path in ipairs(to_update_files) do
+        local modification = lfs.attributes(path, "modification")
+        local md5 = Common.Md5(path)
+        queries[i] = string.format(update_query, modification, md5, path)
+    end
+    if to_update_num > 0 then
+        update_query = table.concat(queries)
+        PublishResource.mem_db:exec(update_query)
+    end
+end
+
+function PublishResource.InsertImageState(to_insert_files)
+    local to_update_num = #to_insert_files
+    local update_query = " INSERT INTO file_state(path,modification,md5) VALUES('%s',%s,'%s');"
+    local queries = {}
+    for i, path in ipairs(to_insert_files) do
+        local modification = lfs.attributes(path, "modification")
+        local md5 = Common.Md5(path)
+        queries[i] = string.format(update_query, path, modification, md5)
+    end
+
+    if to_update_num > 0 then
+        update_query = table.concat(queries)
+        PublishResource.mem_db:exec(update_query)
+    end
+end
+function PublishResource.TouchImageState(to_update_files)
+    local to_update_num = #to_update_files
+    local update_query = "UPDATE file_state SET modification = %s WHERE path = '%s';"
+    local queries = {}
+    for i, path in ipairs(to_update_files) do
+        local modification = lfs.attributes(path, "modification")
+        queries[i] = string.format(update_query, modification, path)
+    end
+    if to_update_num > 0 then
+        update_query = table.concat(queries)
+        PublishResource.mem_db:exec(update_query)
+    end
 end
 
 function PublishResource.GetFilesOfDir(folder, suffix)
@@ -222,7 +300,7 @@ end
 
 function PublishResource.PublishUi(to_publish, source, target)
     local to_publish_file = {}
-    local ui_directory = source .. "/cocosstudio/ui"
+    local ui_directory = source .. "/cocosstudio/ui/"
     for i, path in ipairs(to_publish) do
         to_publish_file[i] = string.gsub(path, ui_directory, "", 1)
     end
@@ -247,7 +325,7 @@ function PublishResource.PublishUi(to_publish, source, target)
     os.remove(temp_css_file)
 end
 
-function PublishResource.PublishPlist(states_will_publish, css_file_place_path, publish_directory, cocosstudio_directory)
+function PublishResource.PublishPlist(to_publish, source, target)
     ---@type XML
     local css_file_template = XML(PublishResource.CCS_Template)
     local root_node = css_file_template:getRootNode()
@@ -255,13 +333,15 @@ function PublishResource.PublishPlist(states_will_publish, css_file_place_path, 
     local RootFolder_node = root_node:getChild(2):getChild(1):getChild(1)
     local plist_node = root_node:getChild(2):getChild(1):getChild(1):getChildByAttri("Name", "plist")
 
-    for _, plist_state in pairs(states_will_publish) do
+    local plist_directory = source .. "/cocosstudio/plist/"
+    local cocosstudio_directory = source .. "/cocosstudio"
+    for _, path in pairs(to_publish) do
         local PlistInfo_node = XML:newNode("PlistInfo")
-        PlistInfo_node:setAttributeValue("Name", plist_state.name)
+        PlistInfo_node:setAttributeValue("Name", string.gsub(path, plist_directory, "", 1))
         PlistInfo_node:setAttributeValue("Type", "Plist")
         plist_node:addChild(PlistInfo_node)
 
-        local ImageFiles_node = XML(plist_state.path):getRootNode():getChild(2):getChild(1):getChildren()
+        local ImageFiles_node = XML(path):getRootNode():getChild(2):getChild(1):getChildren()
         for i, image_node in ipairs(ImageFiles_node) do
             local rp = image_node:getAttributeValue("Path")
             local temp_node = RootFolder_node
@@ -288,34 +368,12 @@ function PublishResource.PublishPlist(states_will_publish, css_file_place_path, 
             end
         end
     end
-
-    local temp_css_file = css_file_place_path .. "/temp_css_file.ccs"
-    css_file_template:writeTo(temp_css_file)
-    if Common.GetMapItemNum(states_will_publish) > 0 then
-        PublishResource.StartPublish(temp_css_file, publish_directory)
+    if #to_publish > 0 then
+        local temp_css_file = source .. "/temp_css_file.ccs"
+        css_file_template:writeTo(temp_css_file)
+        PublishResource.StartPublish(temp_css_file, target)
+        os.remove(temp_css_file)
     end
-    os.remove(temp_css_file)
-end
-
-function PublishResource.PublishCsd(states_will_publish, css_file_place_path, publish_directory)
-    ---@type XML
-    local css_file_template = XML(PublishResource.CCS_Template)
-    local root_node = css_file_template:getRootNode()
-    ---@type XMLNode
-    local Folder_node = root_node:getChild(2):getChild(1):getChild(1):getChildByAttri("Name", "ui")
-    for i, v in pairs(states_will_publish) do
-        ---@type XMLNode
-        local newNode = XML:newNode("Project")
-        newNode:setAttributeValue("Name", v.name)
-        newNode:setAttributeValue("Type", "Layer")
-        Folder_node:addChild(newNode)
-    end
-    local temp_css_file = css_file_place_path .. "/temp_css_file.ccs"
-    css_file_template:writeTo(temp_css_file)
-    if Common.GetMapItemNum(states_will_publish) > 0 then
-        PublishResource.StartPublish(temp_css_file, publish_directory)
-    end
-    os.remove(temp_css_file)
 end
 
 function PublishResource.StartPublish(css_file, publish_directory)
@@ -332,147 +390,6 @@ function PublishResource.StartPublish(css_file, publish_directory)
         error(result)
     end
     print()
-end
-
----@param db userdata
----@param table_name string
----@param states state[]
-function PublishResource.UpdateTable(db, table_name, states)
-    local stmt = PublishResource.CreateSmart(db, table_name)
-
-    local total = Common.GetMapItemNum(states)
-    local i = 1
-    for k, v in pairs(states) do
-        Common.ShowOnOneline(string.format("update db %s/%s %s", i, total, v.name))
-        stmt:bind_names({
-            id = v.id,
-            modification = v.modification,
-            sha1 = Win32.getSha1(v.path),
-            name = v.name,
-            relative_path = v.relative_path,
-            path = v.path
-        })
-        stmt:step()
-        stmt:reset()
-        i = i + 1
-    end
-    if i == 1 then
-        print("update db 0/0")
-    else
-        print()
-    end
-    stmt:finalize()
-end
-
-function PublishResource.ChangedImages(db, plist_state, cocosstudio_directory)
-    if string.sub(cocosstudio_directory, #cocosstudio_directory, #cocosstudio_directory) ~= "/" then
-        cocosstudio_directory = cocosstudio_directory .. "/"
-    end
-    local image_states = {}
-    local image_table_name = "image" .. Common.EasyChecksum(plist_state.path)
-    ---@type XMLNode[]
-    local ImageFiles = XML(plist_state.path):getRootNode():getChild(2):getChild(1):getChildren()
-    for i, v in ipairs(ImageFiles) do
-        local rp = v:getAttributeValue("Path")
-        image_states[rp] = {
-            path = cocosstudio_directory .. rp,
-            name = rp,
-            modification = lfs.attributes(cocosstudio_directory .. rp, "modification"),
-            relative_path = rp
-        }
-    end
-    PublishResource.TouchTable(db, image_table_name)
-    local image_last_state = PublishResource.GetLastStates(db, image_table_name)
-    return (PublishResource.Compare(image_states, image_last_state))
-end
-
----@param now state[]
----@param last state[]
----@return state[],state[]
-function PublishResource.Compare(states_now, states_last)
-    local states_have_changed = {}
-    local states_not_changed = {}
-    for k, state_now in pairs(states_now) do
-        local state_old = states_last[k]
-        if state_old then
-            state_now.id = state_old.id
-            if state_old.modification < state_now.modification and Common.Md5(state_now.path) ~= state_old.sha1 then
-                states_have_changed[k] = state_now
-            else
-                states_not_changed[k] = state_now
-            end
-        else
-            states_have_changed[k] = state_now
-        end
-    end
-    return states_have_changed, states_not_changed
-end
-
----@return state[]
-function PublishResource.GetLastStates(db, tableName)
-    local last_states = {}
-    for row in db:nrows("SELECT * FROM " .. tableName) do
-        last_states[row.relative_path] = {
-            id = row.id,
-            name = row.name,
-            sha1 = row.sha1,
-            modification = row.modification,
-            relative_path = row.relative_path,
-            path = row.path
-        }
-    end
-    return last_states
-end
-
-function PublishResource.CreateSmart(db, tableName)
-    return db:prepare(string.format(
-        "INSERT OR REPLACE INTO %s (id,modification,sha1,name,relative_path,path) VALUES (:id,:modification,:sha1,:name,:relative_path,:path)",
-        tableName))
-end
-
-function PublishResource.TouchTable(db, tableName)
-    return db:exec(string.format([[
-        CREATE TABLE %s (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            modification TIMESTAMP,
-            sha1 TEXT,
-            name TEXT,
-            path TEXT,
-            relative_path TEXT
-        );
-]], tableName))
-end
-
---- func desc
----@param folder string
----@param suffix string
----@param root_folder string
----@return state[]
-function PublishResource.GetStates(folder, suffix, root_folder)
-    if string.sub(root_folder, #root_folder, #root_folder) ~= "/" then
-        root_folder = root_folder .. "/"
-    end
-    local start_index = #root_folder + 1
-    suffix = string.lower(suffix)
-    ---@type state[]
-    local states = {}
-    local pattern = "^.+%." .. suffix .. "$"
-    for entry in lfs.dir(folder) do
-        local filePath = folder .. "/" .. entry
-        if string.match(string.lower(filePath), pattern) then
-            ---@class state
-            local state = {
-                id = nil,
-                path = filePath,
-                name = entry,
-                modification = lfs.attributes(filePath, "modification"),
-                sha1 = nil,
-                relative_path = string.sub(filePath, start_index, #filePath)
-            }
-            states[state.relative_path] = state
-        end
-    end
-    return states
 end
 
 KoreanToChinese = {}
