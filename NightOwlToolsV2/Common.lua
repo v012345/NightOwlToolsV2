@@ -1,5 +1,6 @@
 require "Tools.XML"
 require "Tools.CSV"
+local sha = require "pure_lua_SHA.sha2"
 
 Common = {}
 function Common.ShowOnOneline(out)
@@ -7,6 +8,26 @@ function Common.ShowOnOneline(out)
     local curLen = #out
     out = out .. string.rep(" ", 100 - curLen)
     io.write(out)
+end
+
+function Common.Md5(file_path)
+    local append = sha.md5() -- create calculation instance #1
+    local file = io.open(file_path, "rb")
+    for chunk in file:lines(4096) do
+        append(chunk)
+    end
+    file:close()
+    return append()
+end
+
+function Common.Sha1(file_path)
+    local append = sha.sha1() -- create calculation instance #1
+    local file = io.open(file_path, "rb")
+    for chunk in file:lines(4096) do
+        append(chunk)
+    end
+    file:close()
+    return append()
 end
 
 function Common.GetMapItemNum(map)
@@ -39,22 +60,21 @@ end
 
 PublishResource = {
     CocosTool = "C:\\Cocos\\Cocos Studio\\Cocos.Tool.exe",
-    DB_Path = "LocalOnly/PublishResource.db",
     PublishAll = false, -- 全部发布
-    Projects = {        --
-        {
-            source = "D:/Closers.cocos/resource/ui/branches/qooapp/zhtw",
-            target = "D:/Closers.cocos/client/branches/qooapp/Resources/res_zhtw"
-            -- to = "D:/NightOwlToolsV2/NightOwlToolsV2/LocalOnly"
-        } --
-        -- {
-        --     from = "D:/Closers.cocos/resource/ui/branches/dzogame_sea/zhcn",
-        --     to = "D:/Closers.cocos/client/branches/dzogame_sea/Resources/res_zhcn"
-        -- }, --
-        -- {
-        --     from = "D:/Closers.cocos/resource/ui/branches/online",
-        --     to = "D:/Closers.cocos/client/branches/online/Resources/res"
-        -- } --
+    Projects = { --
+    {
+        source = "D:/Closers.cocos/resource/ui/branches/qooapp/zhtw",
+        target = "D:/Closers.cocos/client/branches/qooapp/Resources/res_zhtw"
+        -- to = "D:/NightOwlToolsV2/NightOwlToolsV2/LocalOnly"
+    } --
+    -- {
+    --     from = "D:/Closers.cocos/resource/ui/branches/dzogame_sea/zhcn",
+    --     to = "D:/Closers.cocos/client/branches/dzogame_sea/Resources/res_zhcn"
+    -- }, --
+    -- {
+    --     from = "D:/Closers.cocos/resource/ui/branches/online",
+    --     to = "D:/Closers.cocos/client/branches/online/Resources/res"
+    -- } --
     },
     CCS_Template = [[
 <Solution>
@@ -74,29 +94,20 @@ PublishResource = {
 }
 
 function PublishResource:init()
-    local DB = sqlite3.open(self.DB_Path)
-    local iterator, sqlite_vm = DB:nrows("SELECT name FROM sqlite_master WHERE type='table' AND name='FileStates';")
+    local disk_db = sqlite3.open('LocalOnly/PublishResource.db')
+    local query = "SELECT name FROM sqlite_master WHERE type='table' AND name='file_state'"
+    local iterator, sqlite_vm = disk_db:nrows(query)
     if not iterator(sqlite_vm) then
-        DB:exec [[
-            CREATE TABLE FileStates (
-                path PRIMARY KEY,
-                modification TIMESTAMP,
-                sha1 TEXT )
-            ]]
+        query = "CREATE TABLE file_state (path TEXT PRIMARY KEY, modification TIMESTAMP,md5 TEXT);"
+        disk_db:exec(query)
     end
-    local stmt = DB:prepare [[
-            INSERT OR REPLACE INTO FileStates
-            (modification,sha1,path)
-            VALUES (:modification,:sha1,:path)
-    ]]
+    disk_db:close()
+    self.mem_db = sqlite3.open_memory()
+    assert(self.mem_db:exec("ATTACH DATABASE 'LocalOnly/PublishResource.db' AS disk_db") == sqlite3.OK)
+    assert(self.mem_db:exec("CREATE TABLE file_state AS SELECT * FROM disk_db.file_state") == sqlite3.OK)
+    assert(self.mem_db:exec("DETACH DATABASE disk_db") == sqlite3.OK)
 
-    self.UpdateOrInsert = function(file_state)
-        stmt:bind_names(file_state)
-        stmt:step()
-        stmt:reset()
-    end
-
-    local stmt = DB:prepare("SELECT * FROM FileStates WHERE path = ?")
+    local stmt = self.mem_db:prepare("SELECT * FROM file_state WHERE path = ?")
     self.GetInfoByPath = function(path)
         stmt:bind_values(path)
         local result = stmt:step()
@@ -109,22 +120,72 @@ function PublishResource:init()
     end
 end
 
-PublishResource:init()
+function PublishResource:realse()
+    assert(self.mem_db:exec("ATTACH DATABASE 'LocalOnly/PublishResource.db' AS disk_db") == sqlite3.OK)
+    assert(self.mem_db:exec("DELETE FROM disk_db.file_state") == sqlite3.OK)
+    assert(self.mem_db:exec("INSERT INTO disk_db.file_state SELECT * FROM file_state") == sqlite3.OK)
+    assert(self.mem_db:exec("DETACH DATABASE disk_db") == sqlite3.OK)
+    self.mem_db:close()
+end
+function PublishResource.InsertFileState(to_insert_files)
+    local to_update_num = #to_insert_files
+    local update_query = " INSERT INTO file_state(path,modification,md5) VALUES('%s',%s,'%s');"
+    local queries = {}
+    for i, path in ipairs(to_insert_files) do
+        Common.ShowOnOneline(string.format("calculate md5 : %s/%s", i, to_update_num))
+        local modification = lfs.attributes(path, "modification")
+        local md5 = Common.Md5(path)
+        queries[i] = string.format(update_query, path, modification, md5)
+    end
+    update_query = table.concat(queries)
+    PublishResource.mem_db:exec(update_query)
+    if to_update_num > 0 then
+        print()
+    end
+    print("insert state : " .. to_update_num)
+end
 
-function PublishResource.CheckModification(paths)
+function PublishResource.UpdateFileState(to_update_files)
+    local to_update_num = #to_update_files
+    local update_query = "UPDATE file_state SET modification = %s,md5 = '%s' WHERE path = '%s';"
+    local queries = {}
+    for i, path in ipairs(to_update_files) do
+        local modification = lfs.attributes(path, "modification")
+        local md5 = Common.Md5(path)
+        queries[i] = string.format(update_query, modification, md5, path)
+    end
+    update_query = table.concat(queries)
+    PublishResource.mem_db:exec(update_query)
+    print("update state : " .. to_update_num)
+end
+
+function PublishResource.UpdateModification(to_update_files)
+    local to_update_num = #to_update_files
+    local update_query = "UPDATE file_state SET modification = %s WHERE path = '%s';"
+    local queries = {}
+    for i, path in ipairs(to_update_files) do
+        local modification = lfs.attributes(path, "modification")
+        queries[i] = string.format(update_query, modification, path)
+    end
+    update_query = table.concat(queries)
+    PublishResource.mem_db:exec(update_query)
+    print("touch  state : " .. to_update_num)
+end
+
+function PublishResource.CheckFileState(paths)
+    local new = {}
     local modified = {}
-    local unchanged = {}
     local touched = {}
-    for _, path in ipairs(paths) do
+    local unchanged = {}
+    local total = #paths
+    for i, path in ipairs(paths) do
+        Common.ShowOnOneline(string.format("check  files : %s/%s", i, total))
         local old = PublishResource.GetInfoByPath(path)
         if old then
             local modification = lfs.attributes(path, "modification")
             if old.modification < modification then
-                Common.ShowOnOneline("checksum " .. path)
-                local sha1 = Win32.getSha1(path)
-                if sha1 ~= old.sha1 then
-                    print(old.sha1)
-                    print(sha1)
+                local md5 = Common.Md5(path)
+                if md5 ~= old.md5 then
                     table.insert(modified, path)
                 else
                     table.insert(unchanged, path)
@@ -134,10 +195,13 @@ function PublishResource.CheckModification(paths)
                 table.insert(unchanged, path)
             end
         else
-            table.insert(modified, path)
+            table.insert(new, path)
         end
     end
-    return modified, unchanged, touched
+    if total > 0 then
+        print()
+    end
+    return new, modified, touched, unchanged
 end
 
 function PublishResource.GetFilesOfDir(folder, suffix)
@@ -156,23 +220,29 @@ function PublishResource.GetFilesOfDir(folder, suffix)
     return files
 end
 
-function PublishResource.PublishUi(states_will_publish, css_file_place_path, publish_directory)
+function PublishResource.PublishUi(to_publish, source, target)
+    local to_publish_file = {}
+    local ui_directory = source .. "/cocosstudio/ui"
+    for i, path in ipairs(to_publish) do
+        to_publish_file[i] = string.gsub(path, ui_directory, "", 1)
+    end
+
     ---@type XML
     local css_file_template = XML(PublishResource.CCS_Template)
     local root_node = css_file_template:getRootNode()
     ---@type XMLNode
     local Folder_node = root_node:getChild(2):getChild(1):getChild(1):getChildByAttri("Name", "ui")
-    for _, name in ipairs(states_will_publish) do
+    for _, name in ipairs(to_publish_file) do
         ---@type XMLNode
         local newNode = XML:newNode("Project")
         newNode:setAttributeValue("Name", name)
         newNode:setAttributeValue("Type", "Layer")
         Folder_node:addChild(newNode)
     end
-    local temp_css_file = css_file_place_path .. "/temp_css_file.ccs"
+    local temp_css_file = source .. "/temp_css_file.ccs"
     css_file_template:writeTo(temp_css_file)
-    if Common.GetMapItemNum(states_will_publish) > 0 then
-        PublishResource.StartPublish(temp_css_file, publish_directory)
+    if #to_publish_file > 0 then
+        PublishResource.StartPublish(temp_css_file, target)
     end
     os.remove(temp_css_file)
 end
@@ -326,7 +396,7 @@ function PublishResource.Compare(states_now, states_last)
         local state_old = states_last[k]
         if state_old then
             state_now.id = state_old.id
-            if state_old.modification < state_now.modification and Win32.getSha1(state_now.path) ~= state_old.sha1 then
+            if state_old.modification < state_now.modification and Common.Md5(state_now.path) ~= state_old.sha1 then
                 states_have_changed[k] = state_now
             else
                 states_not_changed[k] = state_now
@@ -444,7 +514,7 @@ end
 ---@param node XMLNode
 ---@param toCsv CSV
 function KoreanToChinese.extractText(csdName, node, toCsv)
-    local attributes = { "ButtonText", "LabelText", "PlaceHolderText" }
+    local attributes = {"ButtonText", "LabelText", "PlaceHolderText"}
     for i, attri in ipairs(attributes) do
         if node:getAttributeValue(attri) then
             local row = toCsv:getRowNumber() + 1
@@ -487,7 +557,7 @@ end
 ---@param node XMLNode
 ---@param fromMap any
 function KoreanToChinese.replaceText(csdName, node, fromMap)
-    local attributes = { "ButtonText", "LabelText", "PlaceHolderText" }
+    local attributes = {"ButtonText", "LabelText", "PlaceHolderText"}
     for i, attri in ipairs(attributes) do
         if node:getAttributeValue(attri) then
             local tag = node:getAttributeValue("Tag")

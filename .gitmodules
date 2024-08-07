@@ -4,3 +4,6 @@
 [submodule "extensions/luasocket"]
 	path = extensions/luasocket
 	url = git@github.com:lunarmodules/luasocket.git
+[submodule "NightOwlToolsV2/pure_lua_SHA"]
+	path = NightOwlToolsV2/pure_lua_SHA
+	url = git@github.com:Egor-Skriptunoff/pure_lua_SHA.git
