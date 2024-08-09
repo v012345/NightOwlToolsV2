@@ -1,0 +1,13 @@
+<Solution>
+    <PropertyGroup Name="Closers" Version="3.10.0.0" Type="CocosStudio" />
+    <SolutionFolder>
+        <Group ctype="ResourceGroup">
+            <RootFolder Name=".">
+                <Folder Name="image"></Folder>
+                <Folder Name="piece"></Folder>
+                <Folder Name="plist"></Folder>
+                <Folder Name="ui"></Folder>
+            </RootFolder>
+        </Group>
+    </SolutionFolder>
+</Solution>
