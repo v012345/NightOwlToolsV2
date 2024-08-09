@@ -6,7 +6,7 @@ xpcall(function()
     end
 
 
-    local handle = Common.CreateThread([[
+    local handle, param = Common.CreateThread([[
         local socket = require "socket.core"
         for i = 1, 2, 1 do
             print("child thread "..i)
@@ -30,7 +30,7 @@ xpcall(function()
     -- else
     --     error(result)
     -- end
-    print(Common.GetExitCodeThread(handle))
+    print(Common.GetExitCodeThread(handle, param))
     Common.CloseHandle(handle)
     print("?????")
     print(sqlite3)
