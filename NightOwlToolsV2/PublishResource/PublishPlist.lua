@@ -1,6 +1,5 @@
 for i, project in ipairs(PublishResource.Projects) do
     local cocosstudio_directory = project.source .. "/cocosstudio"
-    local plist_table_name = "plist" .. Common.EasyChecksum(cocosstudio_directory)
     local plist_directory = cocosstudio_directory .. "/plist"
     local plist_files = PublishResource.GetFilesOfDir(plist_directory, "csi")
     local new_file, modified, to_update, unchanged = PublishResource.CheckFileState(plist_files)

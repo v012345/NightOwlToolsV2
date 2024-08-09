@@ -49,14 +49,6 @@ function Common.Split(inputstr, sep)
     return t
 end
 
-function Common.EasyChecksum(str)
-    local l = #str
-    local h = 83600 ~ l
-    for i = l, 1, -1 do
-        h = h ~ ((h << 5) + (h >> 2) + string.byte(str, i, i))
-    end
-    return string.format("%x", h)
-end
 
 PublishResource = {
     CocosTool = "C:\\Cocos\\Cocos Studio\\Cocos.Tool.exe",
