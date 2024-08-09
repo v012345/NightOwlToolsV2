@@ -66,11 +66,11 @@ PublishResource = {
         source = "D:/Closers.cocos/resource/ui/branches/qooapp/zhtw",
         target = "D:/Closers.cocos/client/branches/qooapp/Resources/res_zhtw"
         -- to = "D:/NightOwlToolsV2/NightOwlToolsV2/LocalOnly"
+    }, --
+    {
+        source = "D:/Closers.cocos/resource/ui/branches/handygame_test/ko",
+        target = "D:/Closers.cocos/client/branches/handygame_test/Resources/res_ko"
     } --
-    -- {
-    --     from = "D:/Closers.cocos/resource/ui/branches/dzogame_sea/zhcn",
-    --     to = "D:/Closers.cocos/client/branches/dzogame_sea/Resources/res_zhcn"
-    -- }, --
     -- {
     --     from = "D:/Closers.cocos/resource/ui/branches/online",
     --     to = "D:/Closers.cocos/client/branches/online/Resources/res"

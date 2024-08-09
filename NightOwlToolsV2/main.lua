@@ -6,9 +6,12 @@ xpcall(function()
     -- require "KoreanToChinese.KoreanToChinese"
     -- require "KoreanToChinese.ReplaceTextToCsd"
     -- require "KoreanToChinese.FilterReplaceText"
-    require "PublishResource.PublishCsd"
-    require "PublishResource.PublishPlist"
-
+    -- require "PublishResource.PublishCsd"
+    -- require "PublishResource.PublishPlist"
+    -- require "Translation.ExtractTextToCsv"
+    -- require "Translation.FilterChinese"
+    -- require "Translation.Inject"
+    require "Translation.Extract"
     PublishResource:realse()
 
 end, function(msg)

@@ -1,0 +1,12 @@
+-- local base = "D:/Closers.cocos/resource/ui/branches/handygame_test/ko/cocosstudio/ui/"
+-- local tableHead = {"text", "csd", "name", "tag", "attri", "index", "replaced"}
+-- local base_csd_path, baseFileNum = KoreanToChinese.collecCSD(base)
+-- local baseText = CSV("D:/NightOwlToolsV2/NightOwlToolsV2/LocalOnly/Copy of need_trans.csv",true)
+-- baseText:setTableHead(tableHead)
+-- KoreanToChinese.csdToCsv(base_csd_path, baseText, baseFileNum)
+-- baseText:writeTo("LocalOnly/base.csv", true)
+-- local tReplaceText = CSV("LocalOnly/ReplacedText.csv", true)
+-- local replaceMap = KoreanToChinese.csvToMapTable(baseText)
+-- local Korean = "D:/Closers.cocos/resource/ui/branches/handygame_test/ko/cocosstudio/ui/"
+-- local Korean_csd_path, KoreanFileNum = KoreanToChinese.collecCSD(Korean)
+-- KoreanToChinese.CsvToCsd(Korean_csd_path, replaceMap, KoreanFileNum)
