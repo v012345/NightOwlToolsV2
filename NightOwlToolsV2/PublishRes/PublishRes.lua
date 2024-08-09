@@ -294,17 +294,38 @@ end
 function PublishRes:publish(css, target)
     local start_time = os.time()
     Common.Write("start publish, please wait")
+
     local cmd = 'cmd /c ""%s" publish -f "%s" -o "%s" -s -d Serializer_FlatBuffers"'
+
     local publist_cmd = string.format(cmd, self.CocosTool, css, target)
-    local shell = io.popen(publist_cmd) or error("can't execute " .. publist_cmd)
-    local result = shell:read("a")
-    shell:close()
-    if string.find(result, "Publish success!") then
-        Common.Write(string.format("Publish success! spent %ss", os.time() - start_time))
-    else
-        error(result)
+
+    local handle = Common.CreateThread([[
+        local socket = require "socket.core"
+        for i = 1, 2, 1 do
+            print("child thread "..i)
+            socket.sleep(1)
+        end
+        return "ajflsejslgjoijfoisej"
+        ]])
+
+
+
+    while not Common.WaitForSingleObject(handle) do
+        Common.sleep(0.5)
+        print("main thread")
+        -- local shell = io.popen(publist_cmd) or error("can't execute " .. publist_cmd)
+        -- result = shell:read("a")
+        -- shell:close()
     end
-    print()
+
+    -- if string.find(result, "Publish success!") then
+    --     Common.Write(string.format("Publish success! spent %ss", os.time() - start_time))
+    -- else
+    --     error(result)
+    -- end
+    print(Common.GetExitCodeThread(handle))
+    Common.CloseHandle(handle)
+    print("?????")
 end
 
 PublishRes:init()

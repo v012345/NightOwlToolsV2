@@ -1,8 +1,14 @@
 require "Tools.XML"
 require "Tools.CSV"
+local socket = require "socket.core"
 local sha = require "pure_lua_SHA.sha2"
 
-Common = {}
+Common = Common or {}
+
+function Common.sleep(s)
+    socket.sleep(s)
+end
+
 function Common.Write(out)
     io.write(out .. string.rep(" ", 100 - #tostring(out)) .. "\r")
 end
