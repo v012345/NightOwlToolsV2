@@ -5,6 +5,7 @@
         "lundump.h": "c"
     },
     "Lua.diagnostics.globals": [
-        "lfs"
+        "lfs",
+        "sqlite3"
     ]
 }

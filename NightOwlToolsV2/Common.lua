@@ -3,21 +3,28 @@ require "Tools.CSV"
 local sha = require "pure_lua_SHA.sha2"
 
 Common = {}
-function Common.ShowOnOneline(out)
-    local out = "\r" .. out
-    local curLen = #out
-    out = out .. string.rep(" ", 100 - curLen)
-    io.write(out)
+function Common.Write(out)
+    io.write(out .. string.rep(" ", 100 - #tostring(out)) .. "\r")
 end
 
-function Common.Md5(file_path)
+function Common.Merge(...)
+    local t = {}
+    for _, arr in ipairs({ ... }) do
+        for _, v in ipairs(arr) do
+            t[#t + 1] = v
+        end
+    end
+    return t
+end
+
+function Common.Checksum(file_path)
     local append = sha.md5() -- create calculation instance #1
-    local file = io.open(file_path, "rb")
+    local file = io.open(file_path, "rb") or error()
     for chunk in file:lines(4096) do
         append(chunk)
     end
     file:close()
-    return append()
+    return tostring(append())
 end
 
 function Common.Split(inputstr, sep)
@@ -29,6 +36,19 @@ function Common.Split(inputstr, sep)
         table.insert(t, str)
     end
     return t
+end
+
+---Get Files Of Current Directory With The Given Suffix
+function Common.GetFilesOfCurDir(dir, suffix)
+    suffix = string.lower(suffix)
+    local pattern = "^.+%." .. suffix .. "$"
+    local files = {}
+    for entry in lfs.dir(dir) do
+        if string.match(string.lower(entry), pattern) then
+            files[#files + 1] = dir .. "/" .. entry
+        end
+    end
+    return files
 end
 
 KoreanToChinese = {}

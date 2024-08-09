@@ -13,7 +13,7 @@ for i, project in ipairs(PublishRes.Projects) do
     PublishRes.UpdateModification(to_update)
 
     for i, path in ipairs(may_publish) do
-        Common.ShowOnOneline(string.format("double check : %s/%s", i, #may_publish))
+        Common.Write(string.format("double check : %s/%s", i, #may_publish))
         local image_nodes = XML(path):getRootNode():getChild(2):getChild(1):getChildren()
         local image_files = {}
         for i, node in ipairs(image_nodes) do
@@ -34,7 +34,7 @@ for i, project in ipairs(PublishRes.Projects) do
     end
 
     for i, path in ipairs(must_publish) do
-        Common.ShowOnOneline(string.format("update plist : %s/%s", i, #must_publish))
+        Common.Write(string.format("update plist : %s/%s", i, #must_publish))
         local image_nodes = XML(path):getRootNode():getChild(2):getChild(1):getChildren()
         local image_files = {}
         for i, node in ipairs(image_nodes) do
