@@ -20,24 +20,6 @@ function Common.Md5(file_path)
     return append()
 end
 
-function Common.Sha1(file_path)
-    local append = sha.sha1() -- create calculation instance #1
-    local file = io.open(file_path, "rb")
-    for chunk in file:lines(4096) do
-        append(chunk)
-    end
-    file:close()
-    return append()
-end
-
-function Common.GetMapItemNum(map)
-    local total = 0
-    for k, v in pairs(map) do
-        total = total + 1
-    end
-    return total
-end
-
 function Common.Split(inputstr, sep)
     if sep == nil then
         sep = "%s"
