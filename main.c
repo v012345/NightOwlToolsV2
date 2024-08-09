@@ -18,5 +18,6 @@ int main(int argc, char const *argv[])
     lua_pop(L, 1);
     // luaL_dofile(L, LUA_TEST_SCRIPT);
     luaL_dofile(L, "main.lua");
+    lua_close(L);
     return 0;
 }
