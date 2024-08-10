@@ -213,7 +213,9 @@ function PublishRes.TouchImageState(to_update_files)
 end
 
 function PublishRes:publishUi(to_publish, source, target)
-    if #to_publish <= 0 then return end
+    if #to_publish <= 0 then
+        return
+    end
 
     local file_names = {}
     local ui_dir = source .. "/cocosstudio/ui/"
@@ -296,38 +298,34 @@ function PublishRes:publish(css, target)
     Common.Write("start publish, please wait")
 
     local cmd = 'cmd /c ""%s" publish -f "%s" -o "%s" -s -d Serializer_FlatBuffers"'
+    local CocosTool = string.gsub(self.CocosTool, "\\", "\\\\")
 
-    local publist_cmd = string.format(cmd, self.CocosTool, css, target)
-
-    local handle = Common.CreateThread([[
-        local socket = require "socket.core"
-        for i = 1, 2, 1 do
-            print("child thread "..i)
-            socket.sleep(1)
-        end
-        return "ajflsejslgjoijfoisej"
-        ]])
-
-
-
+    local publist_cmd = string.format(cmd, CocosTool, css, target)
+    local handle = Common.CreateThread(string.format([[
+    local publist_cmd ='%s'
+    local shell = io.popen(publist_cmd) or error("can't execute " .. publist_cmd)
+    result = shell:read("a")
+    shell:close()
+    return result
+    ]], publist_cmd))
+    local i = 0
     while not Common.WaitForSingleObject(handle) do
-        Common.sleep(0.5)
-        print("main thread")
-        -- local shell = io.popen(publist_cmd) or error("can't execute " .. publist_cmd)
-        -- result = shell:read("a")
-        -- shell:close()
+        Common.Write(string.format("Publishing %ss", i))
+        i = i + 1
+        Common.sleep(1)
     end
-
-    -- if string.find(result, "Publish success!") then
-    --     Common.Write(string.format("Publish success! spent %ss", os.time() - start_time))
-    -- else
-    --     error(result)
-    -- end
-    print(Common.GetExitCodeThread(handle))
+    print()
+    local result = Common.GetExitCodeThread(handle)
     Common.CloseHandle(handle)
-    print("?????")
+    if string.find(result, "Publish success!") then
+        Common.Write(string.format("Publish success! spent %ss", os.time() - start_time))
+    else
+        error(result)
+    end
 end
 
 PublishRes:init()
-setmetatable(PublishRes, { __gc = PublishRes.realse });
+setmetatable(PublishRes, {
+    __gc = PublishRes.realse
+});
 return PublishRes

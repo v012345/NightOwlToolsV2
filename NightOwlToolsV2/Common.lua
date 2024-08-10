@@ -10,12 +10,12 @@ function Common.sleep(s)
 end
 
 function Common.Write(out)
-    io.write(out .. string.rep(" ", 100 - #tostring(out)) .. "\r")
+    io.write("\r" .. out .. string.rep(" ", Common.GetConsoleScreenBufferInfo() - #tostring(out)))
 end
 
 function Common.Merge(...)
     local t = {}
-    for _, arr in ipairs({ ... }) do
+    for _, arr in ipairs({...}) do
         for _, v in ipairs(arr) do
             t[#t + 1] = v
         end
@@ -96,7 +96,7 @@ end
 ---@param node XMLNode
 ---@param toCsv CSV
 function KoreanToChinese.extractText(csdName, node, toCsv)
-    local attributes = { "ButtonText", "LabelText", "PlaceHolderText" }
+    local attributes = {"ButtonText", "LabelText", "PlaceHolderText"}
     for i, attri in ipairs(attributes) do
         if node:getAttributeValue(attri) then
             local row = toCsv:getRowNumber() + 1
@@ -139,7 +139,7 @@ end
 ---@param node XMLNode
 ---@param fromMap any
 function KoreanToChinese.replaceText(csdName, node, fromMap)
-    local attributes = { "ButtonText", "LabelText", "PlaceHolderText" }
+    local attributes = {"ButtonText", "LabelText", "PlaceHolderText"}
     for i, attri in ipairs(attributes) do
         if node:getAttributeValue(attri) then
             local tag = node:getAttributeValue("Tag")

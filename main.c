@@ -28,8 +28,8 @@ int main(int argc, char const *argv[])
     lua_pop(L, 1);
     luaL_requiref(L, "mime.core", luaopen_mime_core, 0);
     lua_pop(L, 1);
-    luaL_dofile(L, LUA_TEST_SCRIPT);
-    // luaL_dofile(L, "main.lua");
+    // luaL_dofile(L, LUA_TEST_SCRIPT);
+    luaL_dofile(L, "main.lua");
     lua_close(L);
     return 0;
 }
@@ -38,18 +38,32 @@ static int lua_CreateThread(lua_State *L);
 static int lua_WaitForSingleObject(lua_State *L);
 static int lua_GetExitCodeThread(lua_State *L);
 static int lua_CloseHandle(lua_State *L);
+static int lua_GetConsoleScreenBufferInfo(lua_State *L);
 static int luaopen_Common(lua_State *L)
 {
     luaL_Reg lua_reg[] = {
-        {"CreateThread", lua_CreateThread},               //
-        {"WaitForSingleObject", lua_WaitForSingleObject}, //
-        {"GetExitCodeThread", lua_GetExitCodeThread},     //
-        {"CloseHandle", lua_CloseHandle},                 //
+        {"CreateThread", lua_CreateThread},                             //
+        {"WaitForSingleObject", lua_WaitForSingleObject},               //
+        {"GetExitCodeThread", lua_GetExitCodeThread},                   //
+        {"CloseHandle", lua_CloseHandle},                               //
+        {"GetConsoleScreenBufferInfo", lua_GetConsoleScreenBufferInfo}, //
         {NULL, NULL},
     };
     lua_newtable(L);
     luaL_setfuncs(L, lua_reg, 0);
     lua_setglobal(L, "Common");
+    return 1;
+}
+
+static int lua_GetConsoleScreenBufferInfo(lua_State *L)
+{
+    int consoleWidth;
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    // 获取控制台输出的句柄
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    GetConsoleScreenBufferInfo(hConsole, &csbi);
+    consoleWidth = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+    lua_pushinteger(L, consoleWidth);
     return 1;
 }
 
