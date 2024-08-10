@@ -7,7 +7,7 @@ typedef struct ExecLuaCodeParam
 {
     char *code;
     char *msg;
-    HANDLE *handle;
+    HANDLE handle;
 } ExecLuaCodeParam;
 
 int luaopen_lfs(lua_State *L);
@@ -72,52 +72,35 @@ static int lua_CreateThread(lua_State *L)
         0,                         // 默认创建标志
         &dwThreadId                // 获取线程ID
     );
-    pExecLuaCodeParam->handle = &hThread;
+    pExecLuaCodeParam->handle = hThread;
     ExecLuaCodeParam **ppExecLuaCodeParam = lua_newuserdata(L, sizeof(ExecLuaCodeParam *));
     *ppExecLuaCodeParam = pExecLuaCodeParam;
     return 1;
-    // if (hThread == NULL)
-    // {
-    //     printf("CreateThread failed. Error: %d\n", GetLastError());
-    //     return 1;
-    // }
 }
 
 static int lua_CloseHandle(lua_State *L)
 {
     ExecLuaCodeParam **pExecLuaCodeParam = (ExecLuaCodeParam **)lua_touserdata(L, 1);
-    // 关闭线程句柄
-    // HANDLE *phThread = (HANDLE *)lua_touserdata(L, 1);
-    CloseHandle(*(*pExecLuaCodeParam)->handle);
+    CloseHandle((*pExecLuaCodeParam)->handle);
     free((void *)(*pExecLuaCodeParam)->code);
     free((void *)(*pExecLuaCodeParam)->msg);
-    free((void *)pExecLuaCodeParam);
     return 0;
 }
 static int lua_WaitForSingleObject(lua_State *L)
 {
-    ExecLuaCodeParam **pExecLuaCodeParam = (ExecLuaCodeParam **)lua_touserdata(L, 1);
+    ExecLuaCodeParam **ppExecLuaCodeParam = (ExecLuaCodeParam **)lua_touserdata(L, 1);
     // 检查子线程是否已经结束
-    DWORD result = WaitForSingleObject(*(*pExecLuaCodeParam)->handle, 0);
+    DWORD result = WaitForSingleObject((*ppExecLuaCodeParam)->handle, 0);
     lua_pushboolean(L, result == WAIT_OBJECT_0);
     return 1;
 }
 static int lua_GetExitCodeThread(lua_State *L)
 {
-    HANDLE *phThread = (HANDLE *)lua_touserdata(L, 1);
     ExecLuaCodeParam **pExecLuaCodeParam = (ExecLuaCodeParam **)lua_touserdata(L, 1);
     // 获取子线程的返回值
     DWORD exitCode;
-    if (GetExitCodeThread(*(*pExecLuaCodeParam)->handle, &exitCode))
-    {
-        lua_pushstring(L, (*pExecLuaCodeParam)->msg);
-    }
-    else
-    {
-        printf("Failed to get thread exit code. Error: %d\n", GetLastError());
-        lua_pushnil(L);
-    }
-
+    GetExitCodeThread((*pExecLuaCodeParam)->handle, &exitCode);
+    lua_pushstring(L, (*pExecLuaCodeParam)->msg);
     return 1;
 }
 
