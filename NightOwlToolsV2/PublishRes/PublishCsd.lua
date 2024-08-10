@@ -5,7 +5,7 @@ for i, project in ipairs(PublishRes.Projects) do
     PublishRes:updateTouched(touched, true)
     local to_publish = Common.Merge(created, modified)
     PublishRes:publishUi(to_publish, project.source, project.target)
-    -- PublishRes.UpdateFileState(modified)
-    -- PublishRes.InsertFileState(new_file)
-    -- print("csd publish " .. #to_publish .. " files")
+    PublishRes:UpdateFileState(modified)
+    PublishRes:InsertFileState(created)
+    print("csd publish " .. #to_publish .. " files")
 end

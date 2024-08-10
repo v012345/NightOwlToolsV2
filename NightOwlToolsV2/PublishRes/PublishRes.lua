@@ -60,21 +60,21 @@ function PublishRes:getStateByPath(path)
     return row
 end
 
-function PublishRes.InsertFileState(to_insert_files)
+function PublishRes:InsertFileState(to_insert_files)
     local to_update_num = #to_insert_files
-    local update_query = " INSERT INTO file_state(path,modification,checksum) VALUES('%s',%s,'%s');"
+    local querry = "INSERT INTO %s(path,modification,checksum) VALUES('%%s',%%s,'%%s');"
+    local querry = string.format(querry, self.TableName)
     local queries = {}
     for i, path in ipairs(to_insert_files) do
         Common.Write(string.format("calculate checksum : %s/%s", i, to_update_num))
         local modification = lfs.attributes(path, "modification")
         local checksum = Common.Checksum(path)
-        queries[i] = string.format(update_query, path, modification, checksum)
+        queries[i] = string.format(querry, path, modification, checksum)
     end
 
     if to_update_num > 0 then
         print()
-        update_query = table.concat(queries)
-        PublishRes.mem_db:exec(update_query)
+        self.DB:exec(table.concat(queries))
         print("insert state : " .. to_update_num)
     end
 end
@@ -90,7 +90,7 @@ function PublishRes.UpdateFileState(to_update_files)
     end
     if to_update_num > 0 then
         update_query = table.concat(queries)
-        PublishRes.mem_db:exec(update_query)
+        self.DB:exec(update_query)
         print("update state : " .. to_update_num)
     end
 end
@@ -104,8 +104,8 @@ function PublishRes:updateTouched(touched, is_show_progress)
         queries[i] = string.format(query, modification, path)
     end
     if is_show_progress and total > 0 then
-        self.DB:exec(table.concat(queries))
         print("touch  state : " .. total)
+        self.DB:exec(table.concat(queries))
     end
 end
 
