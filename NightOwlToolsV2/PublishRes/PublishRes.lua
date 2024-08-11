@@ -63,7 +63,7 @@ end
 function PublishRes:InsertFileState(to_insert_files)
     local to_update_num = #to_insert_files
     local querry = "INSERT INTO %s(path,modification,checksum) VALUES('%%s',%%s,'%%s');"
-    local querry = string.format(querry, self.TableName)
+    querry = string.format(querry, self.TableName)
     local queries = {}
     for i, path in ipairs(to_insert_files) do
         Common.Write(string.format("calculate checksum : %s/%s", i, to_update_num))
@@ -79,18 +79,21 @@ function PublishRes:InsertFileState(to_insert_files)
     end
 end
 
-function PublishRes.UpdateFileState(to_update_files)
+function PublishRes:UpdateFileState(to_update_files, is_show_log)
     local to_update_num = #to_update_files
-    local update_query = "UPDATE file_state SET modification = %s,checksum = '%s' WHERE path = '%s';"
+    if to_update_num <= 0 then
+        return
+    end
+    local querry = "UPDATE %s SET modification = %%s,checksum = '%%s' WHERE path = '%%s';"
+    querry = string.format(querry, self.TableName)
     local queries = {}
     for i, path in ipairs(to_update_files) do
         local modification = lfs.attributes(path, "modification")
         local checksum = Common.Checksum(path)
-        queries[i] = string.format(update_query, modification, checksum, path)
+        queries[i] = string.format(querry, modification, checksum, path)
     end
-    if to_update_num > 0 then
-        update_query = table.concat(queries)
-        self.DB:exec(update_query)
+    self.DB:exec(table.concat(queries))
+    if is_show_log then
         print("update state : " .. to_update_num)
     end
 end
@@ -140,78 +143,6 @@ function PublishRes:compareWithDB(paths, is_show_progress)
     return created, modified, touched, unchanged
 end
 
-function PublishRes:CheckImageState(paths)
-    local new = {}
-    local modified = {}
-    local touched = {}
-    local unchanged = {}
-    local total = #paths
-    for i, path in ipairs(paths) do
-        local old = self:getStateByPath(path)
-        if old then
-            local modification = lfs.attributes(path, "modification")
-            if old.modification < modification then
-                local checksum = Common.Checksum(path)
-                if checksum ~= old.checksum then
-                    table.insert(modified, path)
-                else
-                    table.insert(touched, path)
-                end
-            else
-                table.insert(unchanged, path)
-            end
-        else
-            table.insert(new, path)
-        end
-    end
-    return new, modified, touched, unchanged
-end
-
-function PublishRes.UpdateImageState(to_update_files)
-    local to_update_num = #to_update_files
-    local update_query = "UPDATE file_state SET modification = %s,checksum = '%s' WHERE path = '%s';"
-    local queries = {}
-    for i, path in ipairs(to_update_files) do
-        local modification = lfs.attributes(path, "modification")
-        local checksum = Common.Checksum(path)
-        queries[i] = string.format(update_query, modification, checksum, path)
-    end
-    if to_update_num > 0 then
-        update_query = table.concat(queries)
-        PublishRes.mem_db:exec(update_query)
-    end
-end
-
-function PublishRes.InsertImageState(to_insert_files)
-    local to_update_num = #to_insert_files
-    local update_query = " INSERT INTO file_state(path,modification,checksum) VALUES('%s',%s,'%s');"
-    local queries = {}
-    for i, path in ipairs(to_insert_files) do
-        local modification = lfs.attributes(path, "modification")
-        local checksum = Common.Checksum(path)
-        queries[i] = string.format(update_query, path, modification, checksum)
-    end
-
-    if to_update_num > 0 then
-        update_query = table.concat(queries)
-        PublishRes.mem_db:exec(update_query)
-    end
-end
-
-function PublishRes.TouchImageState(to_update_files)
-    local to_update_num = #to_update_files
-    local update_query = "UPDATE file_state SET modification = %s WHERE path = '%s';"
-    local queries = {}
-    for i, path in ipairs(to_update_files) do
-        local modification = lfs.attributes(path, "modification")
-        queries[i] = string.format(update_query, modification, path)
-    end
-    if to_update_num > 0 then
-        update_query = table.concat(queries)
-        PublishRes.mem_db:exec(update_query)
-    end
-end
-
 function PublishRes:publishUi(to_publish, source, target)
     if #to_publish <= 0 then
         return
@@ -234,18 +165,21 @@ function PublishRes:publishUi(to_publish, source, target)
         node:setAttributeValue("Type", "Layer")
         ui_node:addChild(node)
     end
+
     local temp = source .. "/.temp.ccs"
     ccs:writeTo(temp)
-    if #to_publish > 0 then
-        self:publish(temp, target)
-    end
+    self:publish(temp, target)
     os.remove(temp)
 end
 
-function PublishRes.PublishPlist(to_publish, source, target)
+function PublishRes:PublishPlist(to_publish, source, target)
+    if #to_publish <= 0 then
+        return
+    end
+
     ---@type XML
-    local css_file_template = XML(PublishRes.CCS_Template)
-    local root_node = css_file_template:getRootNode()
+    local ccs = XML(self.CCS)
+    local root_node = ccs:getRootNode()
     ---@type XMLNode
     local RootFolder_node = root_node:getChild(2):getChild(1):getChild(1)
     local plist_node = root_node:getChild(2):getChild(1):getChild(1):getChildByAttri("Name", "plist")
@@ -285,12 +219,12 @@ function PublishRes.PublishPlist(to_publish, source, target)
             end
         end
     end
-    if #to_publish > 0 then
-        local temp_css_file = source .. "/temp_css_file.ccs"
-        css_file_template:writeTo(temp_css_file)
-        PublishRes.StartPublish(temp_css_file, target)
-        os.remove(temp_css_file)
-    end
+
+    local temp = source .. "/temp_css_file.ccs"
+    ccs:writeTo(temp)
+    self:publish(temp, target)
+    os.remove(temp)
+
 end
 
 function PublishRes:publish(css, target)
@@ -302,11 +236,11 @@ function PublishRes:publish(css, target)
 
     local publist_cmd = string.format(cmd, CocosTool, css, target)
     local handle = Common.CreateThread(string.format([[
-    local publist_cmd ='%s'
-    local shell = io.popen(publist_cmd) or error("can't execute " .. publist_cmd)
-    result = shell:read("a")
-    shell:close()
-    return result
+        local publist_cmd ='%s'
+        local shell = io.popen(publist_cmd) or error("can't execute " .. publist_cmd)
+        result = shell:read("a")
+        shell:close()
+        return result
     ]], publist_cmd))
     local i = 0
     while not Common.WaitForSingleObject(handle) do
@@ -314,7 +248,6 @@ function PublishRes:publish(css, target)
         i = i + 1
         Common.sleep(1)
     end
-    print()
     local result = Common.GetExitCodeThread(handle)
     Common.CloseHandle(handle)
     if string.find(result, "Publish success!") then

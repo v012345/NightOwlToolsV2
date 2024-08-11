@@ -8,7 +8,7 @@ xpcall(function()
     -- require "KoreanToChinese.ReplaceTextToCsd"
     -- require "KoreanToChinese.FilterReplaceText"
     require "PublishRes.PublishCsd"
-    -- require "PublishRes.PublishPlist"
+    require "PublishRes.PublishPlist"
     -- require "Translation.ExtractTextToCsv"
     -- require "Translation.FilterChinese"
     -- require "Translation.Inject"

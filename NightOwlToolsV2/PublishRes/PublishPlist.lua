@@ -1,54 +1,51 @@
 for i, project in ipairs(PublishRes.Projects) do
-    local cocosstudio_directory = project.source .. "/cocosstudio"
-    local plist_directory = cocosstudio_directory .. "/plist"
-    local plist_files = PublishRes.GetFilesOfDir(plist_directory, "csi")
-    local new_file, modified, to_update, unchanged = PublishRes.CheckFileState(plist_files)
+    local plist_dir = project.source .. "/cocosstudio/plist"
+    local plist_files = Common.GetFilesOfCurDir(plist_dir, "csi")
 
-    local must_publish = {table.unpack(new_file)}
-    table.move(modified, 1, #modified, #must_publish + 1, must_publish)
+    local created, modified, touched, unchanged = PublishRes:compareWithDB(plist_files, true)
 
-    local may_publish = {table.unpack(unchanged)}
-    table.move(to_update, 1, #to_update, #may_publish + 1, may_publish)
+    PublishRes:updateTouched(touched)
 
-    PublishRes.UpdateModification(to_update)
-
-    for i, path in ipairs(may_publish) do
-        Common.Write(string.format("double check : %s/%s", i, #may_publish))
-        local image_nodes = XML(path):getRootNode():getChild(2):getChild(1):getChildren()
-        local image_files = {}
-        for i, node in ipairs(image_nodes) do
-            image_files[i] = project.source .. "/cocosstudio/" .. node:getAttributeValue("Path")
-        end
-        local new_file, modified, to_update = PublishRes.CheckImageState(image_files)
-        if next(new_file) or next(modified) then
-            must_publish[#must_publish + 1] = path
-        else
-            PublishRes.UpdateModification(to_update)
-        end
-    end
+    local to_publish = Common.Merge(created, modified)
+    local may_publish = Common.Merge(touched, unchanged)
     if #may_publish > 0 then
+        local progress = string.format("double check : %%s/%s", #may_publish)
+        for i, path in ipairs(may_publish) do
+            Common.Write(string.format(progress, i))
+            local image_nodes = XML(path):getRootNode():getChild(2):getChild(1):getChildren()
+            local image_files = {}
+            for i, node in ipairs(image_nodes) do
+                image_files[i] = project.source .. "/cocosstudio/" .. node:getAttributeValue("Path")
+            end
+
+            local created, modified, touched = PublishRes:compareWithDB(image_files, false)
+            PublishRes:updateTouched(touched)
+            if next(created) or next(modified) then
+                to_publish[#to_publish + 1] = path
+            end
+        end
         print()
-    end
-    if #must_publish > 0 then
-        PublishRes.PublishPlist(must_publish, project.source, project.target)
     end
 
-    for i, path in ipairs(must_publish) do
-        Common.Write(string.format("update plist : %s/%s", i, #must_publish))
-        local image_nodes = XML(path):getRootNode():getChild(2):getChild(1):getChildren()
-        local image_files = {}
-        for i, node in ipairs(image_nodes) do
-            image_files[i] = project.source .. "/cocosstudio/" .. node:getAttributeValue("Path")
+    if #to_publish > 0 then
+        PublishRes:PublishPlist(to_publish, project.source, project.target)
+        local progress = string.format("update plist : %%s/%s", #to_publish)
+        for i, path in ipairs(to_publish) do
+            Common.Write(string.format(progress, i))
+            local image_nodes = XML(path):getRootNode():getChild(2):getChild(1):getChildren()
+            local image_files = {}
+            for i, node in ipairs(image_nodes) do
+                image_files[i] = project.source .. "/cocosstudio/" .. node:getAttributeValue("Path")
+            end
+            local created, modified, touched = PublishRes:compareWithDB(image_files, false)
+            PublishRes:UpdateFileState(modified)
+            PublishRes:InsertFileState(created)
+            PublishRes:updateTouched(touched)
         end
-        local new_file, modified, to_update = PublishRes.CheckImageState(image_files)
-        PublishRes.UpdateImageState(modified)
-        PublishRes.InsertImageState(new_file)
-        PublishRes.TouchImageState(to_update)
-    end
-    if #must_publish > 0 then
         print()
     end
-    PublishRes.UpdateFileState(modified)
-    PublishRes.InsertFileState(new_file)
-    print("plist publish " .. #must_publish .. " files")
+
+    PublishRes:UpdateFileState(modified, true)
+    PublishRes:InsertFileState(created)
+    print(">>>>>>>>> published " .. #to_publish .. " plist files <<<<<<<<")
 end
