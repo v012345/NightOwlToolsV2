@@ -4,7 +4,7 @@ for i, project in ipairs(PublishRes.Projects) do
 
     local created, modified, touched, unchanged = PublishRes:compareWithDB(plist_files, true)
 
-    PublishRes:updateTouched(touched)
+    PublishRes:updateTouched(touched, true)
 
     local to_publish = Common.Merge(created, modified)
     local may_publish = Common.Merge(touched, unchanged)
