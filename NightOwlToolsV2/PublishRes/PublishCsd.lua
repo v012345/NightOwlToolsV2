@@ -6,6 +6,6 @@ for i, project in ipairs(PublishRes.Projects) do
     local to_publish = Common.Merge(created, modified)
     PublishRes:publishUi(to_publish, project.source, project.target)
     PublishRes:UpdateFileState(modified, true)
-    PublishRes:InsertFileState(created)
+    PublishRes:InsertFileState(created, true)
     print(">>>>>>>>> published " .. #to_publish .. " ui files <<<<<<<<")
 end

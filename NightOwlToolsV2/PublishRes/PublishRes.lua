@@ -60,22 +60,26 @@ function PublishRes:getStateByPath(path)
     return row
 end
 
-function PublishRes:InsertFileState(to_insert_files)
+function PublishRes:InsertFileState(to_insert_files, is_show_progress)
     local to_update_num = #to_insert_files
+    if to_update_num <= 0 then
+        return
+    end
     local querry = "INSERT INTO %s(path,modification,checksum) VALUES('%%s',%%s,'%%s');"
     querry = string.format(querry, self.TableName)
     local queries = {}
     for i, path in ipairs(to_insert_files) do
-        Common.Write(string.format("calculate checksum : %s/%s", i, to_update_num))
+        if is_show_progress then
+            Common.Write(string.format("calculate checksum : %s/%s", i, to_update_num))
+        end
         local modification = lfs.attributes(path, "modification")
         local checksum = Common.Checksum(path)
         queries[i] = string.format(querry, path, modification, checksum)
     end
-
-    if to_update_num > 0 then
+    self.DB:exec(table.concat(queries))
+    if is_show_progress then
+        Common.Write("insert files to db : " .. to_update_num)
         print()
-        self.DB:exec(table.concat(queries))
-        print("insert state : " .. to_update_num)
     end
 end
 

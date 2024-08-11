@@ -46,6 +46,6 @@ for i, project in ipairs(PublishRes.Projects) do
     end
 
     PublishRes:UpdateFileState(modified, true)
-    PublishRes:InsertFileState(created)
+    PublishRes:InsertFileState(created, true)
     print(">>>>>>>>> published " .. #to_publish .. " plist files <<<<<<<<")
 end
