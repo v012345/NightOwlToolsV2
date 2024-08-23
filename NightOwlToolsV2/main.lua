@@ -8,13 +8,14 @@ xpcall(function()
     -- require "KoreanToChinese.KoreanToChinese"
     -- require "KoreanToChinese.ReplaceTextToCsd"
     -- require "KoreanToChinese.FilterReplaceText"
-    require "PublishRes.PublishCsd"
-    require "PublishRes.PublishPlist"
+    -- require "PublishRes.PublishCsd"
+    -- require "PublishRes.PublishPlist"
     -- require "Translation.ExtractTextToCsv"
     -- require "Translation.FilterChinese"
     -- require "Translation.Inject"
-    require "Translation.Extract"
+    -- require "Translation.Extract"
     -- PublishRes:realse()
+    require "CopyDirStructure.CopySpecialDir"
 end, function(msg)
     print(msg)
 end)
