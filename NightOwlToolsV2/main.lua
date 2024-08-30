@@ -48,9 +48,11 @@ xpcall(function()
     -- 设置超时时间为无限，表示服务器会一直等待客户端连接
     server:settimeout(nil)
     -- 等待客户端连接
+    print("waiting connect")
     local client = server:accept()
     -- 设置客户端的超时时间为 10 秒
     client:settimeout(10)
+    print("connected")
 
     -- 主循环
     while true do
