@@ -25,6 +25,7 @@ xpcall(function()
                 client:close()
                 client = server:accept()
                 client:settimeout(10)
+                print("connected")
             end
         end
     end)
