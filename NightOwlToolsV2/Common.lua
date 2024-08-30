@@ -218,7 +218,7 @@ end
 Socket = {}
 
 function Socket.put_utf8_string(client, str)
-    local len = #str + 1
+    local len = #str
     local b1 = (len & 0x000000ff) >> 0
     local b2 = (len & 0x0000ff00) >> 8
     local b3 = (len & 0x00ff0000) >> 16

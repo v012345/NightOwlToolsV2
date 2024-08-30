@@ -13,8 +13,6 @@ xpcall(function()
             if data then
                 if data == "ping" then -- 心跳
                     Socket.put_utf8_string(client, "pong")
-                    Socket.put_utf8_string(client, "pong")
-                    Socket.put_utf8_string(client, "pong")
                 else
                     table.insert(data_queue, data)
                 end
