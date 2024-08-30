@@ -223,7 +223,6 @@ function Socket.put_utf8_string(client, str)
     local b2 = (len & 0x0000ff00) >> 8
     local b3 = (len & 0x00ff0000) >> 16
     local b4 = (len & 0xff000000) >> 24
-    print(string.char(b1, b2, b3, b4) .. str)
     return client:send(string.char(b1, b2, b3, b4) .. str)
 
 end
@@ -242,6 +241,5 @@ function Socket.get_utf8_string(client)
         error("这个情况我还不太处理, 大概要分包了")
     end
     local rec = string.sub(data, 5, tLen)
-    print(rec)
     return rec, err
 end

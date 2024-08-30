@@ -6,53 +6,35 @@ xpcall(function()
     local socket = require "socket"
     -- 创建共享数据结构
     local data_queue = {}
-
-    -- 锁，用于控制访问共享数据
-    local mutex = false
-
     -- 生产者协程：接收 socket 数据
-    local producer = coroutine.create(function(client)
+    local producer = coroutine.create(function(server, client)
         while true do
             local data, err = Socket.get_utf8_string(client)
             if data then
-                -- 等待锁释放
-                while mutex do
-                    coroutine.yield()
-                end
                 if data == "ping" then -- 心跳
                     Socket.put_utf8_string(client, "pong")
                     Socket.put_utf8_string(client, "pong")
                     Socket.put_utf8_string(client, "pong")
                 else
-                    -- 锁住数据结构并存储数据
-                    mutex = true
-                    table.insert(data_queue, rec)
-                    mutex = false
+                    table.insert(data_queue, data)
                 end
                 -- 通知消费者
                 coroutine.yield()
             elseif err == "closed" then
-                break
+                client:close()
+                client = server:accept()
+                client:settimeout(10)
             end
         end
     end)
 
     -- 消费者协程：处理数据
-    local consumer = coroutine.create(function(client)
+    local consumer = coroutine.create(function(server, client)
         while true do
-            -- 等待锁释放
-            while mutex do
-                coroutine.yield()
-            end
-
-            -- 锁住数据结构并取出数据
-            mutex = true
             local data = table.remove(data_queue, 1)
-            mutex = false
-
             if data then
-                print("Processing data:", data)
-                client:send("Processing data:" .. data)
+                print(data)
+                Socket.put_utf8_string(client, data)
             else
                 -- 如果没有数据，等待生产者提供
                 coroutine.yield()
@@ -71,17 +53,8 @@ xpcall(function()
     -- 主循环
     while true do
         -- 运行生产者协程
-        if coroutine.status(producer) ~= "dead" then
-            coroutine.resume(producer, client)
-        elseif #data_queue <= 0 then
-            break
-        end
-
-        -- 运行消费者协程
-        if coroutine.status(consumer) ~= "dead" then
-            coroutine.resume(consumer, client)
-        end
-
+        coroutine.resume(producer, server, client)
+        coroutine.resume(consumer, server, client)
         -- 暂停一下防止 CPU 占用过高
         socket.sleep(0.01)
     end
