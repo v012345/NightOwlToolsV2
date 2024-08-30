@@ -2,6 +2,7 @@
 #include "lualib.h"
 #include "lauxlib.h"
 #include <windows.h>
+#include <direct.h>
 
 typedef struct ExecLuaCodeParam
 {
@@ -18,6 +19,11 @@ static int luaopen_Common(lua_State *L);
 DWORD G_X = 0;
 int main(int argc, char const *argv[])
 {
+    if (argc >= 2 && _chdir(argv[1]) != 0)
+    {
+        perror("Failed to change directory");
+        return 1;
+    }
     lua_State *L = luaL_newstate();
     luaL_openlibs(L);
     luaopen_lfs(L);

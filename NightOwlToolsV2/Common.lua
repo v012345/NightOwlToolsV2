@@ -15,7 +15,7 @@ end
 
 function Common.Merge(...)
     local t = {}
-    for _, arr in ipairs({ ... }) do
+    for _, arr in ipairs({...}) do
         for _, v in ipairs(arr) do
             t[#t + 1] = v
         end
@@ -96,7 +96,7 @@ end
 ---@param node XMLNode
 ---@param toCsv CSV
 function KoreanToChinese.extractText(csdName, node, toCsv)
-    local attributes = { "ButtonText", "LabelText", "PlaceHolderText" }
+    local attributes = {"ButtonText", "LabelText", "PlaceHolderText"}
     for i, attri in ipairs(attributes) do
         if node:getAttributeValue(attri) then
             local row = toCsv:getRowNumber() + 1
@@ -139,7 +139,7 @@ end
 ---@param node XMLNode
 ---@param fromMap any
 function KoreanToChinese.replaceText(csdName, node, fromMap)
-    local attributes = { "ButtonText", "LabelText", "PlaceHolderText" }
+    local attributes = {"ButtonText", "LabelText", "PlaceHolderText"}
     for i, attri in ipairs(attributes) do
         if node:getAttributeValue(attri) then
             local tag = node:getAttributeValue("Tag")
@@ -213,4 +213,35 @@ function Win32.copy(from, to)
         print(r:read("a"))
         r:close()
     end
+end
+
+Socket = {}
+
+function Socket.put_utf8_string(client, str)
+    local len = #str + 1
+    local b1 = (len & 0x000000ff) >> 0
+    local b2 = (len & 0x0000ff00) >> 8
+    local b3 = (len & 0x00ff0000) >> 16
+    local b4 = (len & 0xff000000) >> 24
+    print(string.char(b1, b2, b3, b4) .. str)
+    return client:send(string.char(b1, b2, b3, b4) .. str)
+
+end
+function Socket.get_utf8_string(client)
+    local data, err = client:receive()
+    if err then
+        return data, err
+    end
+    local b4 = string.byte(data, 4) << 24
+    local b3 = string.byte(data, 3) << 16
+    local b2 = string.byte(data, 2) << 8
+    local b1 = string.byte(data, 1)
+    local len = b1 + b2 + b3 + b4
+    local tLen = #data
+    if tLen ~= len + 3 then
+        error("这个情况我还不太处理, 大概要分包了")
+    end
+    local rec = string.sub(data, 5, tLen)
+    print(rec)
+    return rec, err
 end
