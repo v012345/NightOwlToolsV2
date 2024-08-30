@@ -21,6 +21,7 @@ xpcall(function()
                 -- 通知消费者
                 coroutine.yield()
             elseif err == "closed" then
+                print("waiting reconnect")
                 client:close()
                 client = server:accept()
                 client:settimeout(10)
