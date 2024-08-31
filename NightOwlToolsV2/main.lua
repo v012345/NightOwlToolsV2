@@ -16,8 +16,6 @@ xpcall(function()
                 else
                     table.insert(data_queue, data)
                 end
-                -- 通知消费者
-                coroutine.yield()
             elseif err == "closed" then
                 print("waiting reconnect")
                 client:close()
@@ -25,6 +23,8 @@ xpcall(function()
                 client:settimeout(10)
                 print("connected")
             end
+            -- 通知消费者
+            coroutine.yield(server, client)
         end
     end)
 
@@ -37,7 +37,7 @@ xpcall(function()
                 Socket.put_utf8_string(client, data)
             else
                 -- 如果没有数据，等待生产者提供
-                coroutine.yield()
+                server, client = coroutine.yield()
             end
         end
     end)
@@ -55,7 +55,7 @@ xpcall(function()
     -- 主循环
     while true do
         -- 运行生产者协程
-        coroutine.resume(producer, server, client)
+        local _, server, client = coroutine.resume(producer, server, client)
         coroutine.resume(consumer, server, client)
         -- 暂停一下防止 CPU 占用过高
         socket.sleep(0.01)
