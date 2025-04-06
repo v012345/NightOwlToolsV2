@@ -46,6 +46,57 @@ function Translation:covert(from, to)
     os.execute(cmd)
 end
 
+---@param node XMLNode
+---@param fromCsv CSV
+function Translation:injectText(csdName, node, fromCsv,needTransCsv)
+    local attributes = {"ButtonText", "LabelText", "PlaceHolderText"}
+    for i, attri in ipairs(attributes) do
+        if node:getAttributeValue(attri) then
+
+            local tag = node:getAttributeValue("Tag")
+            local name = node:getAttributeValue("Name")
+            local index = string.format("%s_%s_%s_%s", csdName, tag, name, attri)
+            local text = fromCsv:getDataFromIndex("index",index,"text")
+            if text then
+                node:setAttributeValue(attri,text)
+            else
+                local row = needTransCsv:getRowNumber() + 1
+                needTransCsv:setCellByHead(row, "text", node:getAttributeValue(attri))
+                needTransCsv:setCellByHead(row, "csd", csdName)
+                needTransCsv:setCellByHead(row, "name", node:getAttributeValue("Name"))
+                needTransCsv:setCellByHead(row, "tag", tag)
+                needTransCsv:setCellByHead(row, "attri", attri)
+                needTransCsv:setCellByHead(row, "index", string.format("%s_%s_%s_%s", csdName, tag, name, attri))
+                needTransCsv:setCellByHead(row, "replaced", "false")
+                needTransCsv:setCellByHead(row, "translation", "")
+            end
+        end
+    end
+    for k, v in pairs(node:getChildren()) do
+        self:injectText(csdName, v, fromCsv,needTransCsv)
+    end
+end
+
+function Translation:inject(csd_path, text)
+    local i = 1
+    local total = #csd_path
+    text:setIndex("index")
+    local tableHead = {"text", "translation", "csd", "name", "tag", "attri", "index", "replaced"}
+    local needTransCsv = CSV()
+    needTransCsv:setTableHead(tableHead)
+    for _, filePath in pairs(csd_path) do
+        local t = Common.Split(filePath, "/")
+        local fileName = t[#t]
+        local xml = XML(filePath)
+        Common.Write(string.format("\r%s/%s %s", i, total, fileName))
+        i = i + 1
+        self:injectText(fileName, xml:getRootNode(), text,needTransCsv)
+        xml:writeTo(filePath)
+    end
+    needTransCsv:writeTo("LocalOnly/needTransCsv.csv")
+    print()
+end
+
 function Translation:csdToCsv(csd_path, csv)
     local i = 1
     local lastLen = 0

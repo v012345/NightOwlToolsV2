@@ -70,6 +70,34 @@ function CSV:setCellByHead(row, colName, data)
     self:setCell(row, self._tableHead[colName], data)
 end
 
+function CSV:setIndex(colName)
+    if self._tableHead[colName] then
+        self.__indexMap = self.__indexMap or {}
+        self.__indexMap[colName] = self.__indexMap[colName] or {}
+        local index = self.__indexMap[colName]
+        local indexCol = self._tableHead[colName]
+        for i = 2, #self._mData, 1 do
+            local indexValue = self._mData[i][indexCol]:getData()
+            if index[indexValue] then
+                error("index repeat")
+            else
+                index[indexValue]= i
+            end
+             
+        end
+    end
+end
+
+function CSV:getDataFromIndex(index,indexValue,colName)
+    if self.__indexMap[index] then
+        if self.__indexMap[index][indexValue] then
+            return self._mData[self.__indexMap[index][indexValue]][self._tableHead[colName]]:getData()
+        else
+            return nil
+        end
+    end
+end
+
 function CSV:getData(row, col)
     return self._mData[row][col]:getData()
 end

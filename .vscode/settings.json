@@ -1,8 +1,12 @@
 {
     "files.associations": {
+        "*.bytes": "lua",
+        "*.asset": "yaml",
         "ldebug.h": "c",
         "lauxlib.h": "c",
-        "lundump.h": "c"
+        "lundump.h": "c",
+        "lualib.h": "c",
+        "direct.h": "c"
     },
     "Lua.diagnostics.globals": [
         "lfs",

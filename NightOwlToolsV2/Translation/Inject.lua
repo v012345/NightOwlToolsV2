@@ -15,12 +15,15 @@ for i, project in ipairs(Translation.Projects) do
     local textXlsx = project.source .. "/text.xlsx"
     Translation:covert(textXlsx, textCsv)
 
-    local ui_dir = project.source .. "/cocosstudio/ui"
-    local ui_files = Common.GetFilesOfCurDir(ui_dir, "csd")
-    -- local tableHead = {"text", "translation", "csd", "name", "tag", "attri", "index", "replaced"}
-    local text = CSV(textCsv, true)
-    -- Translation:inje(ui_files, text)
+    local textTable = CSV(textCsv,true)
+    print(textTable)
 
-    text:writeTo(textCsv, true)
+    local ui_dir = project.target .. "/cocosstudio/ui"
+    local ui_files = Common.GetFilesOfCurDir(ui_dir, "csd")
+    -- -- local tableHead = {"text", "translation", "csd", "name", "tag", "attri", "index", "replaced"}
+    -- local text = CSV(textCsv, true)
+    Translation:inject(ui_files, textTable)
+
+    -- text:writeTo(textCsv, true)
 end
 

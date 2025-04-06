@@ -123,6 +123,9 @@ function PublishRes:compareWithDB(paths, is_show_progress)
         local db_file_state = self:getStateByPath(path)
         if db_file_state then
             local modification = lfs.attributes(path, "modification")
+            if not modification then
+                print(path)
+            end
             if db_file_state.modification < modification then
                 local checksum = Common.Checksum(path)
                 if checksum ~= db_file_state.checksum then

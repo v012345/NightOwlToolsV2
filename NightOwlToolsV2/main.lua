@@ -1,65 +1,25 @@
 require("LuaPanda").start("127.0.0.1", 8818);
 xpcall(function()
-    require "Common"
-    require "PublishRes.PublishRes"
-    require "Translation.Translation"
-    local socket = require "socket"
-    -- 创建共享数据结构
-    local data_queue = {}
-    -- 生产者协程：接收 socket 数据
-    local producer = coroutine.create(function(server, client)
-        while true do
-            local data, err = Socket.get_utf8_string(client)
-            if data then
-                if data == "ping" then -- 心跳
-                    Socket.put_utf8_string(client, "pong")
-                else
-                    table.insert(data_queue, data)
-                end
-            elseif err == "closed" then
-                print("waiting reconnect")
-                client:close()
-                client = server:accept()
-                client:settimeout(10)
-                print("connected")
-            end
-            -- 通知消费者
-            coroutine.yield(server, client)
-        end
-    end)
 
-    -- 消费者协程：处理数据
-    local consumer = coroutine.create(function(server, client)
-        while true do
-            local data = table.remove(data_queue, 1)
-            if data then
-                print(data)
-                Socket.put_utf8_string(client, data)
-            else
-                -- 如果没有数据，等待生产者提供
-                server, client = coroutine.yield()
-            end
-        end
-    end)
-    -- 创建一个 TCP 套接字并绑定到本地 IP 地址和端口
-    local server = assert(socket.bind("127.0.0.1", 12345))
-    -- 设置超时时间为无限，表示服务器会一直等待客户端连接
-    server:settimeout(nil)
-    -- 等待客户端连接
-    print("waiting connect")
-    local client = server:accept()
-    -- 设置客户端的超时时间为 10 秒
-    client:settimeout(10)
-    print("connected")
-
-    -- 主循环
-    while true do
-        -- 运行生产者协程
-        local _, server, client = coroutine.resume(producer, server, client)
-        coroutine.resume(consumer, server, client)
-        -- 暂停一下防止 CPU 占用过高
-        socket.sleep(0.01)
-    end
+    -- require "Scripts.CopyAToB"
+    require "BlackMoonTools.Hotfix"
+    -- require "PublishRes.PublishRes"
+    -- require "Translation.Translation"
+    -- -- require "Translation.Inject"
+    -- -- PublishRes:init()
+    -- -- require "KoreanToChinese.ExtractTextToCsv"
+    -- -- require "KoreanToChinese.KoreanToChinese"
+    -- -- require "KoreanToChinese.ReplaceTextToCsd"
+    -- -- require "KoreanToChinese.FilterReplaceText"
+    -- require "PublishRes.PublishCsd"
+    -- require "PublishRes.PublishPlist"
+    -- require "Translation.ExtractTextToCsv"
+    -- require "Translation.FilterChinese"
+    -- require "Translation.Extract"
+    -- require "Translation.Inject"
+    -- require "Translation.Filter"
+    -- require "BlackMoonTextDiff.Main"
+    -- PublishRes:realse()
 end, function(msg)
     print(msg)
 end)

@@ -1,6 +1,19 @@
 -- local utf8 = require("utf8")
--- ---@type CSV
--- local tReplaceText = CSV("LocalOnly/base.csv", true)
+---@type CSV
+local needTransCsv = CSV("LocalOnly/needTransCsv.csv", true)
+---@type CSV
+local text = CSV("LocalOnly/text.csv", true)
+needTransCsv:setIndex("index")
+text:setIndex("index")
+for i = 2, needTransCsv:getRowNumber(), 1 do
+    local index = needTransCsv:getDataByHead(i,"index")
+    local data =  text:getDataFromIndex("index",index,"text")
+    if data then
+        needTransCsv:setCellByHead(i,"text",data)
+    end
+end
+needTransCsv:writeTo("LocalOnly/needTransCsv1.csv")
+Translation:covert("LocalOnly/needTransCsv1.csv", "LocalOnly/needTransCsv1.xlsx")
 -- ---@type CSV
 -- local filter = CSV()
 -- filter:setTableHead(tReplaceText:getHead())
