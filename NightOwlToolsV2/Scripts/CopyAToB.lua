@@ -1,7 +1,7 @@
 -- dirFrom 中的文件完成复制到 dirTo 中去
 
 local dirFrom = "C:/work/Pokemon/20211020_3_3_0/03_Code/trunk/project/Resources"
-local dirTo = "C:/work/NightOwlToolsV2/NightOwlToolsV2/temp/assets"
+local dirTo = "C:/work/Pokemon/20211020_3_3_0/03_Code/trunk/project/ResourcesStation"
 lfs.mkdir(dirTo)
 local excludeDir = { -- .git, .svn 之类, 不去比较
     [".git"] = true,
@@ -59,5 +59,6 @@ getAllFilesOfDirectory(dirFrom, excludeDir, dirAFiles)
 
 for i, v in ipairs(dirAFiles) do
     print(v)
+    -- print(string.gsub(v, dirFrom, dirTo, 1))
     copy(v, string.gsub(v, dirFrom, dirTo, 1))
 end

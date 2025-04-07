@@ -1,0 +1,546 @@
+
+import os, os.path
+import re
+import shutil
+import hashlib
+import datetime
+import gzip,zipfile
+from datetime import *
+from optparse import OptionParser
+import csv
+import subprocess
+import sys
+
+language_dir_sep = "-"
+xxtea_cmd = "xxtea e SMSP %s %s"
+luajit_cmd = "..\\luajit\\luajit -b %s %s"
+encrypt_cmd = "encrypt"
+trunk_src_path = "..\\..\\trunk\\Resources"
+other_src_path = "..\\..\\branches\\%s\\Resources"
+encrypt_path = "\\encryptRes"
+publish_path = "\\publishRes"
+res_copy_path = "\\Resources"
+spine2etc_cmd = "py -3 SpineToEtc.py"
+spine2pvr_cmd = "py -3 SpineToPvr.py"
+plist2pvr_cmd = "py -3 PlistToPvr.py"
+plist2etc_cmd = "py -3 PlistToEtc.py"
+platform_default = "android"
+
+branch_default = "trunk"
+default_version = ""
+version = ""
+
+# 不用加密后缀文件
+extIgnoreList = ['.mp3', '.xml', '.mp4', '.lua', '.json']
+
+directory = ""
+
+class File:
+    @staticmethod
+    def md5(filepath, keydir):
+        content = File.read(filepath)
+        mins = hashlib.md5()
+        content = content.decode("utf-8", "ignore") + keydir
+        mins.update(content.encode())
+        text = mins.hexdigest()
+        return str.upper(text)
+
+    @staticmethod
+    def md5ext(filepath, ext):
+        content = File.read(filepath)
+        content =content.decode() + ext
+        mins = hashlib.md5()
+        mins.update(content.encode())
+        text = mins.hexdigest()
+        return str.upper(text)
+    @staticmethod
+    def md5gzp(filepath):
+        content = File.read(filepath)
+        mins = hashlib.md5()
+        mins.update(content)
+        text = mins.hexdigest()
+        return text
+
+    @staticmethod
+    def read(filepath):
+        try:
+            fp = open(filepath, 'rb')
+            content = fp.read()
+            fp.close()
+        except:
+            return None
+        finally:
+            return content
+
+    @staticmethod
+    def write(filepath, content, mode="wb+"):
+        try:
+            fp = open(filepath, mode)
+            fp.write(content)
+            fp.close()
+        except:
+            pass
+        finally:
+            pass
+
+    @staticmethod
+    def writegzip(src, dst, path=False):
+        dstdir = os.path.dirname(dst)
+        if not os.path.exists(dstdir):
+            os.makedirs(dstdir)
+
+        g = gzip.GzipFile(filename='', mode='wb', compresslevel=9, mtime = "1", fileobj=open(dst, 'wb'))
+        if path:
+            g.write(File.read(src))
+        else:
+            g.write(src.encode())
+        g.close()
+
+    @staticmethod
+    def ergodic(dirpaths):
+        if isinstance(dirpaths, str):
+            dirpaths = [dirpaths]
+
+        flist = []
+        for dirpath in dirpaths:
+            dpath = os.path.realpath(dirpath)
+            if not os.path.isdir(dpath):
+                print('Path [%s] is not a directory!' % dpath)
+                continue
+
+            for root, dirs, files in os.walk(dpath):
+                for file in files:
+                    fpath = os.path.join(root, file)
+                    flist.append(fpath)
+        return flist
+
+    @staticmethod
+    def zipDir(dirpath, outFullName):
+        """
+        压缩指定文件夹
+        :param dirpath: 目标文件夹路径
+        :param outFullName: 压缩文件保存路径+xxxx.zip
+        :return: 无
+        """
+        # zip = zipfile.ZipFile(outFullName,"w",zipfile.ZIP_DEFLATED)
+        # for path,dirnames,filenames in os.walk(dirpath):
+        #     # 去掉目标跟路径，只对目标文件夹下边的文件及文件夹进行压缩
+        #     fpath = path.replace(dirpath,'')
+
+        #     for filename in filenames:
+        #         zip.write(os.path.join(path,filename),os.path.join(fpath,filename))
+        # zip.close()
+
+        command = [
+            "C:\\Program Files\\7-Zip\\7z.exe", 
+            "a",
+            outFullName, 
+            dirpath + os.sep + "*"
+        ]
+        print("zip: "+dirpath+" -> "+outFullName)
+        result = subprocess.run(command, capture_output=True, text=True, check=True)
+        if result.returncode != 0:
+            print("zip invalid ret: "+str(result.returncode))
+            sys.exit(-1)
+
+class Filter:
+    def __init__(self):
+        self.irl = []  # include regex list
+        self.erl = []  # exclude regex list
+
+    def cleanup(self):
+        self.irl = []
+        self.erl = []
+
+    def addir(self, regex_str):
+        r = re.compile(regex_str, re.I)
+        self.irl.append(r)
+        return self
+
+    def adder(self, regex_str):
+        r = re.compile(regex_str, re.I)
+        self.erl.append(r)
+        return self
+
+    def _isinc(self, s):
+        for r in self.irl:
+            if r.search(s) > 0:
+                return True
+        return False
+
+    def _isexc(self, s):
+        for r in self.erl:
+            if r.search(s) != None:
+                return True
+        return False
+
+    def check(self, fpath):
+        if self._isexc(fpath):
+            return False
+        if self._isinc(fpath):
+            return True
+        return True
+
+    def filter(self, slist):
+        if isinstance(slist, str):
+            slist = [slist]
+
+        rlist = []
+        for s in slist:
+            if self.check(s):
+                rlist.append(s)
+        return rlist
+
+
+class info:
+    def __init__(self, src, usetime=False):
+        self.src = src
+        self.enc = src.replace(res_copy_path, encrypt_path)
+        self.gzp = src.replace(res_copy_path, publish_path) + ".gz"
+        self.key = self.gzp.split(publish_path + "\\")[1]
+        self.key = self.key.replace("\\", '/')
+
+        # print("src:%s"% self.src)
+        # print("enc:%s"% self.enc)
+        # print("gzp:%s"% self.gzp)
+        # print("key:%s"% self.key)
+        _, self.ext = os.path.splitext(src)
+
+        self.usetime = usetime
+
+    def encrypt(self):
+        self.enc_md5 = ''
+
+        src = self.src
+        enc = self.enc
+
+        dstdir = os.path.dirname(enc)
+        if not os.path.exists(dstdir):
+            os.makedirs(dstdir)
+
+        shutil.copy2(src, enc)
+
+        if self.ext == '.lua':
+            if platform == 'android':
+                #os.system(luajit_cmd % (enc, enc))
+                os.system(xxtea_cmd % (enc, enc))
+            else:
+                os.system(xxtea_cmd % (enc, enc))
+        if len(self.ext) > 1 and self.ext not in extIgnoreList:
+            os.system(encrypt_cmd + " " + enc)
+
+        if not self.usetime:
+            self.enc_md5 = File.md5(enc, self.key)
+        else:
+            self.enc_md5 = File.md5ext(enc, datetime.now().strftime("%y%m%d%H%M%S%f"))
+
+    def compress(self):
+        gzp = self.gzp
+        enc = self.enc
+
+        dstdir = os.path.dirname(gzp)
+        if not os.path.exists(dstdir):
+            os.makedirs(dstdir)
+
+        File.writegzip(enc, gzp, True)
+        
+        self.gzp_md5 = File.md5gzp(gzp)
+        
+        self.gzp_size = os.path.getsize(gzp)
+
+if __name__ == "__main__":
+    parser = OptionParser()
+    parser.add_option(
+        "-d", "--directory",
+        action="store",
+        dest="dir",
+        default=trunk_src_path,
+        help="set the source resource dir"
+    )
+    parser.add_option(
+        "-p", "--platform",
+        action="store",
+        dest="platform",
+        default=platform_default,
+        help="set platform"
+    )
+    parser.add_option(
+        "-v", "--version",
+        action="store",
+        dest="version",
+        default=default_version,
+        help="set version"
+    )
+    parser.add_option( #默认只打差异文件 带有这个参数就重新打所有文件
+        "--pack_all",
+        action="store_true",
+        dest="pack_all",
+        default=False,
+        help="pack different file or all file"
+    )
+    parser.add_option(
+        "-b", "--branch",
+        action="store",
+        dest="branch",
+        default=branch_default,
+        help="pack which branch's res"
+    )
+
+    parser.add_option(
+        "-l", "--language",
+        action="store",
+        dest="language",
+        default="res",
+        help="pack which language resource"
+    )
+
+    (opts, args) = parser.parse_args()
+
+    language_arr = opts.language.split(",")
+    platform = opts.platform
+    version = opts.version
+    pack_all = opts.pack_all
+    branch_path = "\\" + opts.branch
+    platform_path = "\\" + opts.platform
+    lang_dir_path = "\\" + language_dir_sep.join(language_arr)
+    cur_path = os.getcwd() + branch_path + platform_path + lang_dir_path
+    directory = "C:\\Users\\Meteor\\Desktop\\temp\\yougubt5\\Resources"
+    # if opts.branch == "trunk":
+    #     directory = trunk_src_path
+    # else:
+    #     directory = other_src_path % opts.branch
+
+    if not os.path.exists(cur_path):
+        os.makedirs(cur_path)
+    
+
+    print("--------remove directory Resources begin--------")
+    if os.path.exists(cur_path+res_copy_path):
+        shutil.rmtree(cur_path+res_copy_path)
+        print('**********')
+    print("--------remove directory Resources end--------")
+    os.makedirs(cur_path + res_copy_path)
+
+    backup_list_file = cur_path + "/backup.csv" #上次打包记录的list
+    if pack_all:
+        if os.path.isfile(backup_list_file):
+            os.remove(backup_list_file)
+
+    org_dir_path = os.path.realpath(directory)
+    shutil.copyfile(org_dir_path + '/version', cur_path + res_copy_path + '/version')
+
+    fp = open(cur_path + res_copy_path + '/version',"r+")
+    if version == "":
+        version = fp.read()
+    else:
+        fp.write(version)
+    fp.close()
+    print(version)
+
+    backup_map = {}
+    #如果有打包记录文件和加密文件夹 生成记录list
+    if os.path.isfile(backup_list_file) and os.path.exists(cur_path+encrypt_path) and os.path.exists(cur_path+publish_path):
+        with open(backup_list_file, 'r') as f:
+            for row in csv.reader(f):
+                backup_map[row[0]] = row[1]
+            f.close()
+    else:
+        if os.path.isfile(backup_list_file):
+            os.remove(backup_list_file)
+        print("--------remove directory %s begin--------"%(cur_path+encrypt_path))
+        if os.path.exists(cur_path+encrypt_path):
+            shutil.rmtree(cur_path+encrypt_path)
+        print("--------remove directory %s end--------"%(cur_path+encrypt_path))
+
+        print("--------remove directory %s begin--------"%(cur_path+publish_path))
+        if os.path.exists(cur_path+publish_path):
+            shutil.rmtree(cur_path+publish_path)
+        print("--------remove directory %s end--------"%(cur_path+publish_path))
+        pack_all = True
+
+    #遍历生成所有文件的list
+    all_file_map = {} #key为文件名 包含路径 value为md5
+    all_file_list_info = []
+
+    #遍历多语言资源
+    lang_arr:list=[]
+    dirs = os.listdir( org_dir_path )
+    for file in dirs:
+        full_file = os.path.join(org_dir_path,file)
+        if os.path.isdir(full_file):
+            if file == "res" or file.startswith("res_"):
+                if file in language_arr:
+                    lang_arr.append(file)
+
+    for f in lang_arr:
+        org_res_list = File.ergodic(org_dir_path + '/' + f)
+        res_list = Filter().adder(r".*\.svn.*").adder(r".*\.vscode.*").adder(r"\\version$").filter(org_res_list)
+        for i in range(0, len(res_list)):
+            all_file_list_info.append(info(res_list[i]))
+
+    org_src_list = File.ergodic(org_dir_path + '/src')
+    src_list = Filter().adder(r".*\.svn.*").adder(r".*\.vscode.*").adder(r"\\version$").filter(org_src_list)
+    for i in range(0, len(src_list)):
+        all_file_list_info.append(info(src_list[i]))
+    all_file_list_info_len = len(all_file_list_info)
+    i = 1
+    for f in all_file_list_info:
+        m5 = File.md5(f.src, f.key)
+        print(str(i) + "/" + str(all_file_list_info_len))
+        i = i + 1
+        print(f.key + " building md5:" + m5)
+        all_file_map[f.src.replace(os.path.realpath(directory) + "\\","")] = m5
+    
+    change_list_content = "" #变化的文件列表
+    backup_content = ""
+    need_copy_texture_list = []
+    for file in all_file_map:
+        backup_content += "%s,%s\n" % (file, all_file_map[file])
+        if not (file in backup_map and (backup_map[file] == all_file_map[file])):
+            change_list_content += "%s\n" % (file)
+            print(file,"change file")
+            dstdir, _ = os.path.split(cur_path + res_copy_path + os.sep + file)
+            if not os.path.exists(dstdir):
+                os.makedirs(dstdir,exist_ok=True)
+
+            file_dist_path = cur_path + res_copy_path + os.sep + file
+            shutil.copyfile(org_dir_path + os.sep + file, file_dist_path)
+
+            if platform == "ios":
+                # 多语言分支经常会出现只修改了.atlas或者.plist 而纹理文件却没修改
+                # 查错后发现是美术会修改一些纹理集中的图片透明区域 图集打包最终会删除透明区域 导致图集的纹理最终没变化 但.atlas或者.plist却会变化
+                # ios的纹理转换工具读取.atlas或者.plist时会读取纹理 所以只要是.atlas或者.plist变化就要把纹理也复制过去
+                # change_list_content是记录改变文件的列表 纹理文件没变化的时候 无需记录 仅复制即可 所以此处无需拼接change_list_content 有变化时MD5会变 正常复制文件时会拼接
+                if file.endswith(".atlas") or file.endswith(".plist"): 
+                    need_copy_texture_list.append(file)
+
+    # 补全需要复制的纹理文件
+    for file in need_copy_texture_list:
+        file_arr = os.path.splitext(file)
+        png_file = file_arr[0]+".png"
+        texture_src_path = org_dir_path + os.sep + png_file
+        if os.path.exists(texture_src_path):
+            texture_dist_path = cur_path + res_copy_path + os.sep + png_file
+            if not os.path.exists(texture_dist_path):
+                print("sync texture file: "+texture_src_path + " -> " + texture_dist_path)
+                shutil.copyfile(texture_src_path, texture_dist_path)
+
+    change_list_file = cur_path + "/change_list" + "_" + version + ".csv"
+
+    if platform == "android":
+        print("--------turn android spine's png to etc1 begin--------")
+        for f in lang_arr:
+            print(spine2etc_cmd + " -s %s%s\\Resources\\%s\\animation" % (branch_path,platform_path+lang_dir_path,f))
+            os.system(spine2etc_cmd + " -s %s%s\\Resources\\%s\\animation" % (branch_path,platform_path+lang_dir_path,f))
+        print("--------turn android spine's png to etc1 end--------")
+        print("--------turn android plist's png begin--------")
+        for f in lang_arr:
+            os.system(plist2etc_cmd + " -s %s%s\\Resources\\%s\\plist" % (branch_path,platform_path+lang_dir_path,f))
+        print("--------turn android plist's png end--------")
+    elif platform == "ios":
+        print("--------turn ios spine's png begin--------")
+        for f in lang_arr:
+            os.system(spine2pvr_cmd + " -s %s%s\\Resources\\%s\\animation" % (branch_path,platform_path+lang_dir_path,f))
+        print("--------turn ios spine's png end--------")
+        print("--------turn ios plist's png begin--------")
+        for f in lang_arr:
+            os.system(plist2pvr_cmd + " -s %s%s\\Resources\\%s\\plist" % (branch_path,platform_path+lang_dir_path,f))
+        print("--------turn ios plist's png end--------")
+    elif platform == "pc":
+        print("--------turn qqgame png begin--------")
+        print("--------turn qqgame png end--------")
+
+    File.write(change_list_file, change_list_content, "w")
+    File.write(backup_list_file, backup_content, "w")
+
+    orglist = File.ergodic(cur_path+res_copy_path)
+    srclist = Filter().adder(r".*\.svn.*").adder(r"\\version$").filter(orglist)
+
+    ttl = []
+    for i in range(0, len(srclist)):
+        ttl.append(info(srclist[i]))
+    ttl.append(info(os.path.join(cur_path+res_copy_path, "version"), True))
+
+    print("--------encrypt and gzip Resources begin--------")
+
+    list_path = os.path.join(cur_path, "encryptRes", "list.csv")
+    list2_path = os.path.join(cur_path, "encryptRes", "list-v2.csv")
+
+    listgz_path = os.path.join(cur_path, "publishRes", "list.csv.gz")
+    listgz2_path = os.path.join(cur_path, "publishRes", "list-v2.csv.gz")
+
+    list_file = {}
+    if os.path.isfile(list_path):
+        with open(list_path, 'r') as f:
+            for row in csv.reader(f):
+                list_file[row[2]] = row
+            f.close()
+
+    list2_file = {}
+    if os.path.isfile(list2_path):
+        with open(list2_path, 'r') as f:
+            for row in csv.reader(f):
+                list2_file[row[2]] = row
+            f.close()
+
+    for i in ttl:
+        print("# encrypt and gzip : %s" % i.key)
+        i.encrypt()
+        i.compress()
+
+        if i.key in list_file:
+            if list_file[i.key][0] != i.enc_md5:
+                list_file[i.key][0] = i.enc_md5
+                list_file[i.key][1] = i.gzp_size
+                list2_file[i.key][0] = i.enc_md5
+                list2_file[i.key][1] = i.gzp_size
+                list2_file[i.key][3] = i.gzp_md5
+        else:
+            l = []
+            l.append(i.enc_md5)
+            l.append(i.gzp_size)
+            l.append(i.key)
+            list_file[i.key] = l
+            l2 = []
+            l2.append(i.enc_md5)
+            l2.append(i.gzp_size)
+            l2.append(i.key)
+            l2.append(i.gzp_md5)
+            list2_file[i.key] = l2
+
+    f = open(list_path,'w',newline = "")
+    writer = csv.writer(f)
+    for file_name in list_file:
+        writer.writerow(list_file[file_name])
+    f.close()
+
+    f = open(list2_path,'w',newline = "")
+    writer = csv.writer(f)
+    for file_name in list2_file:
+        writer.writerow(list2_file[file_name])
+    f.close()
+
+    File.writegzip(list_path, listgz_path, True)
+    File.writegzip(list2_path, listgz2_path, True)
+    print("--------encrypt and gzip Resources end--------")
+
+    print("--------zip change_list_res start-------")
+    if os.path.exists(cur_path+res_copy_path):
+        File.zipDir(cur_path+res_copy_path, cur_path+res_copy_path+"_"+version+"_.zip")
+    print("--------zip change_list_res end-------")
+
+    print("--------zip publish_res and change_list csv start-------")
+    if os.path.exists(cur_path+publish_path):
+        File.zipDir(cur_path+publish_path, cur_path+publish_path+"_"+version+"_.zip")
+
+    rename_file = cur_path+"/change_list_"+version+"_.csv"
+
+    if os.path.isfile(rename_file):
+        os.remove(rename_file)
+
+    if os.path.isfile(change_list_file):
+        os.rename(change_list_file, rename_file)
+
+    File.zipDir(cur_path+encrypt_path, cur_path+encrypt_path+".zip")
+    print("--------zip publish_res and change_list csv end-------")
+    os.system("pause")

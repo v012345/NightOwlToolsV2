@@ -6,7 +6,8 @@
         "lauxlib.h": "c",
         "lundump.h": "c",
         "lualib.h": "c",
-        "direct.h": "c"
+        "direct.h": "c",
+        "ctype.h": "c"
     },
     "Lua.diagnostics.globals": [
         "lfs",
