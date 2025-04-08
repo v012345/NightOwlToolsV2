@@ -5,7 +5,7 @@ etc_tool_cmd = 'etcpack.exe "%s" "%s" -v -c etc1 -as -s fast >>nul'
 
 def replace_in_file(src, target, old, new):
     with open(src, 'r', encoding='utf-8') as f:
-        data = f.read().replace(old, new)
+        data = f.read().replace(old, new) # 会修改换行符, 很尴尬
     with open(target, 'w', encoding='utf-8') as f:
         f.write(data)
 
