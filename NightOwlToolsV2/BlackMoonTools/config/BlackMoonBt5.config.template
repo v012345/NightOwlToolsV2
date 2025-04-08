@@ -1,0 +1,12 @@
+[common]
+secret_id = ********************************
+secret_key = ********************************
+bucket = ********************************
+region = ap-beijing
+max_thread = 30
+part_size = 1
+retry = 20
+timeout = 60
+schema = https
+verify = md5
+anonymous = False

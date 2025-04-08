@@ -79,6 +79,18 @@ def get_args():
     )
     return parser.parse_args()
 
+def md5(filepath):
+      mins = hashlib.md5()
+      with open(filepath, 'rb') as fp:
+          while chunk := fp.read(4096):
+              mins.update(chunk)
+      return mins.hexdigest()
+
+def read_list(list_path,list):
+    if os.path.isfile(list_path):
+        with open(list_path, 'r') as f:
+            for row in csv.reader(f):
+                list[row[2]] = row
 
 def get_files_of_dir(directory,outputTo ):
     proc = subprocess.Popen([lua_exe, 'lua\\getFilesOfDir.lua', directory,outputTo],
@@ -98,7 +110,13 @@ def encrypt_file(src, to):
     else:
         shutil.copy(src, to)
     
-
+def md5(filepath, keydir):
+    mins = hashlib.md5()
+    with open(filepath, 'rb') as fp:
+        while chunk := fp.read(4096):
+            mins.update(chunk)
+    mins.update(keydir.encode())
+    return mins.hexdigest().upper()
 
 if __name__ == "__main__":
     (opts, args) = get_args()
@@ -172,15 +190,33 @@ if __name__ == "__main__":
         n += 1
     print()
 
-
-
     # 开始压缩, 热更用, 目前来看黑月的热更是使用最新版本的全部文件, 使用 md5 对比差值一个一个下载
     # 少量还行, 多的话太多下载连接了, 会很慢
-    # dstdir = os.path.dirname(gzp)
-    # if not os.path.exists(dstdir):
-    #     os.makedirs(dstdir)
 
-    # File.writegzip(enc, gzp, True)
+    list_v1,list_v2 = {},{}
+    read_list(encrypt_dir+"/list.csv", list_v1)
+    read_list(encrypt_dir+"/list-v2.csv", list_v2)
+    n, total = 1, len(all_res)
+    for i in all_res:
+        encrypt_res_md5 = md5(encrypt_dir+i)
+        gz_file_name = compressed_dir+i+".gz"
+        compressed_res_md5 = md5(gz_file_name)
+        key = os.path.relpath(gz_file_name, '/')
+        size = os.path.getsize(gz_file_name)
+        list_v1[key] = [encrypt_res_md5,size,key]
+        list_v2[key] = [encrypt_res_md5,size,key,compressed_res_md5]
+        print(f"计算签名 : {n}/{tatol}", end='\r')
+        n += 1
+    print()
+    for i in [{"data": list_v1, "path": "/list.csv"}, {"data": list_v2, "path": "/list-v2.csv"}]:
+        with open(encrypt_dir + i["path"], 'w', newline='', encoding='utf-8') as f:
+            writer = csv.writer(f)
+            writer.writerows(i["data"])
+        with open(encrypt_dir + i["path"], 'rb') as f:
+            c = f.read()
+        with gzip.GzipFile(filename='', mode='wb', compresslevel=9, mtime=1, fileobj=open(compressed_dir + i["path"] + ".gz", 'wb')) as g:
+            g.write(c)
+
  
 
 
