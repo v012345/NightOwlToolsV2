@@ -1,6 +1,6 @@
 -- 比较两个文件夹的目录结构
-local dirA = "C:/work/Pokemon/20211020_3_3_0/03_Code/trunk/project/Resources" -- 使用/
-local dirB = "C:/work/Pokemon/20211020_3_3_0/03_Code/trunk/project/ResourcesStation" -- 使用/
+local dirA = "C:/Users/Meteor/Desktop/temp/publishRes" -- 使用/
+local dirB = "C:/work/NightOwlToolsV2/NightOwlToolsV2/BlackMoonTools/temp/bl/yougubt5/android/res_compressed" -- 使用/
 
 local excludeDir = { -- .git, .svn 之类, 不去比较
     [".git"] = true,

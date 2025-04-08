@@ -10,9 +10,9 @@ pushd "%~dp0"
 @REM py脚本都在 Python 文件夹里, 运行目录就是 /BlackMoonTools
 cd ..\..
 py -3 "Python\publish_res.py" ^
-    @REM --from_dir "C:\work\BlackMoon\Closers.cocos\client\branches\yougubt5\Resources" ^
-    --from_dir "C:\Users\Meteor\Desktop\temp\yougubt5\Resources" ^
-    --to_dir "C:\Users\Meteor\Desktop\temp\blackmoon" ^
+    @REM --from_dir "C:\Users\Meteor\Desktop\temp\yougubt5\Resources" ^
+    --from_dir "C:\work\BlackMoon\Closers.cocos\client\branches\yougubt5\Resources" ^
+    --to_dir "C:\work\NightOwlToolsV2\NightOwlToolsV2\BlackMoonTools\temp\bl" ^
     --pack_all ^@REM 无视 list.csv 全打^
     --res "res,res_zhcn" ^
     --branch "yougubt5" ^

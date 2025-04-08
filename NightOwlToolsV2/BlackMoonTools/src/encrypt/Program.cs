@@ -32,6 +32,33 @@ namespace decrpt
 			fileStream.Close();
 		}
 
+		private static void convertFileTo(string src, string to)
+		{
+			byte[] array = File.ReadAllBytes(src);
+			int num = array.Length;
+			byte[] bytes = Encoding.Default.GetBytes("AONESOFT");
+			int num2 = bytes.Length;
+			int i = 0;
+			int num3 = 0;
+			int num4 = 0;
+			for (; i < num; i += num / 10)
+			{
+				while (i < num && num4 < 64)
+				{
+					array[i] = (byte)(array[i] ^ bytes[num3]);
+					i++;
+					num3 = (num3 + 1) % num2;
+					num4++;
+				}
+				num4 = 0;
+			}
+			byte[] array2 = new byte[4] { 14, 11, 28, 18 };
+			FileStream fileStream = new FileStream(to, FileMode.Create, FileAccess.ReadWrite);
+			fileStream.Write(array2, 0, array2.Length);
+			fileStream.Write(array, 0, array.Length);
+			fileStream.Close();
+		}
+
 		private static void converDirectory(FileSystemInfo info)
 		{
 			if (!info.Exists)
@@ -60,6 +87,11 @@ namespace decrpt
 
 		private static void Main(string[] args)
 		{
+
+            convertFileTo(args[0], args[1]);
+            return;
+
+			// 下面是之前的逻辑, 直接改文件, 真骚啊
 			foreach (string path in args)
 			{
 				if (File.Exists(path))

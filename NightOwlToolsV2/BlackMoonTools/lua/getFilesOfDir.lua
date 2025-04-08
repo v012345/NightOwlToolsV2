@@ -6,17 +6,13 @@ local excludeDir = { -- .git, .svn 之类, 不去比较
     [".vscode"] = true
 }
 local from = arg[1]
-local to = arg[2]
-local output_to = arg[3]
-lfs.mkdir(to)
+local output_to = arg[2]
 local x = {}
 Common.GetAllFilesOfDirectory(from, excludeDir, x)
-Common.CopyDirStructure(from, to, excludeDir)
 local total = #x
 local y = {}
 for i, v in ipairs(x) do
-    print(i, total)
-    Common.Copy(v, string.gsub(v, from, to, 1))
+    io.write(string.format("%s/%s\r",i,total))
     y[#y + 1] = string.gsub(v, from, "", 1)
 end
 
