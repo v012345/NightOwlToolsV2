@@ -37,13 +37,7 @@ directory = ""
 
 class File:
     @staticmethod
-    def md5(filepath, keydir):
-        content = File.read(filepath)
-        mins = hashlib.md5()
-        content = content.decode("utf-8", "ignore") + keydir
-        mins.update(content.encode())
-        text = mins.hexdigest()
-        return str.upper(text)
+
 
     @staticmethod
     def md5ext(filepath, ext):
