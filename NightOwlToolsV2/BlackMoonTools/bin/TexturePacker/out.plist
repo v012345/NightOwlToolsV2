@@ -4,18 +4,18 @@
     <dict>
         <key>frames</key>
         <dict>
-            <key>fy_fight.png</key>
+            <key>nfy_arena_cross.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{0,0},{2048,2048}}</string>
+                <string>{{0,0},{512,512}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
                 <false/>
                 <key>sourceColorRect</key>
-                <string>{{0,0},{2048,2048}}</string>
+                <string>{{0,0},{512,512}}</string>
                 <key>sourceSize</key>
-                <string>{2048,2048}</string>
+                <string>{512,512}</string>
             </dict>
         </dict>
         <key>metadata</key>
@@ -23,13 +23,13 @@
             <key>format</key>
             <integer>2</integer>
             <key>realTextureFileName</key>
-            <string>fy_fight.pvr.ccz</string>
+            <string>nfy_arena_cross.pvr.ccz</string>
             <key>size</key>
-            <string>{2048,2048}</string>
+            <string>{512,512}</string>
             <key>smartupdate</key>
-            <string>$TexturePacker:SmartUpdate:6de16453e58eced86a47196a4c191f27:77e26fc5b9018f79b360c14fbb9416b3:90481c5e1b210b6e5405b4093f7f541e$</string>
+            <string>$TexturePacker:SmartUpdate:d1ab4c21776be04888ef8c1d29a5b93c:ff5e23c610b7ebd688be15ed8d561448:00dda431318da46d0a1edeb2e59889e1$</string>
             <key>textureFileName</key>
-            <string>fy_fight.pvr.ccz</string>
+            <string>nfy_arena_cross.pvr.ccz</string>
         </dict>
     </dict>
 </plist>

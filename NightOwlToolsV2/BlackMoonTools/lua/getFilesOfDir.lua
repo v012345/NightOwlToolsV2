@@ -16,9 +16,6 @@ Common.GetAllFilesOfDirectory(from, excludeDir, x)
 local total = #x
 local y = {}
 for i, v in ipairs(x) do
-    if i > 10 then
-        break
-    end
     io.write(string.format("%s/%s\r",i,total))
     y[#y + 1] = string.gsub(v, from, "", 1)
 end

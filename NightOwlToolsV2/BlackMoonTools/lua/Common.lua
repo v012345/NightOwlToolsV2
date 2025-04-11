@@ -1,7 +1,7 @@
 -- require "Tools.XML"
 -- require "Tools.CSV"
 local socket = require "socket.core"
--- local sha = require "pure_lua_SHA.sha2"
+local sha = require "pure_lua_SHA.sha2"
 
 Common = Common or {}
 
