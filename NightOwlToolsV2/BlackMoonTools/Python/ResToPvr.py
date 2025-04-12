@@ -38,7 +38,8 @@ def resToPvr(src, to, res):
         all_res = [line.strip() for line in f if line.strip()]  # 去掉空行和换行
     # 不影响上层, 还好, 为什么要进行, 因为 etcpack.exe 这个工具只能在自己目录下跑, 好像是要生成文件
     os.chdir("bin/TexturePacker")
-    n, tatol = 1, len(all_res)
+    n, tatol = 0, len(all_res)
+    print(f"正在转为ios 使用的 pvr : {n}/{tatol}", end='\r')
     for i in all_res:
         s, t = src + i, to + i
         if i.endswith(".atlas"):
@@ -118,8 +119,8 @@ def resToPvr(src, to, res):
                       (pvr_file_path[0]+".png", pvr_file_path[0]+".pvr.ccz"))
             os.remove(pvr_file_path[0]+".png")
             dealed_files.append(os.path.splitext(i)[0]+".pvr.ccz")
-        print(f"正在转为pvr : {n}/{tatol}", end='\r')
         n += 1
+        print(f"正在转为ios 使用的 pvr : {n}/{tatol}", end='\r')
     print()
     return dealed_files
 
