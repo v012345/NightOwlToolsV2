@@ -36,7 +36,6 @@ local function openDB(DBPath, TableName)
     return db
 end
 
-
 local function getStateByPath(db, path)
     local query = "SELECT * FROM %s WHERE path = ?"
     local stmt = db:prepare(string.format(query, "file_states"))
@@ -80,9 +79,9 @@ print("检查文件是否变动(与上次出资源时对比)")
 
 local total = #x
 local need_deal = 0
+local unneed_deal = 0
 local y = {}
 for i, v in ipairs(x) do
-    io.write(string.format("%s/%s\r", i, total))
     local path = string.gsub(v, from, "", 1)
     local db_file_state = getStateByPath(db, path)
     if db_file_state then
@@ -96,16 +95,20 @@ for i, v in ipairs(x) do
                 local query = string.format("UPDATE %s SET modification = %s WHERE path = '%s';", TableName,
                     modification, path)
                 db:exec(query)
+                unneed_deal = unneed_deal + 1
             end
+        else
+            unneed_deal = unneed_deal + 1
         end
     else
         y[#y + 1] = path
         need_deal = need_deal + 1
     end
+    io.write(string.format("进度 %d/%d | 待处理: %d | 无需处理: %d\r", i, total, need_deal, unneed_deal))
 end
+print()
 
+db:close()
 local file = io.open(output_to, "w") or error("can't open " .. output_to)
 file:write(table.concat(y, "\n"))
 file:close()
-
-db:close()

@@ -1,30 +1,11 @@
 require "lua.Common"
 
-local excludeDir = { -- .git, .svn 之类, 不去比较
-    [".git"] = true,
-    [".svn"] = true,
-    [".vscode"] = true
-}
+
 local from = arg[1]
 local output_dir = arg[2]
 local file_state_path = arg[3]
 local x = {}
 os.execute("chcp 65001 >nul")
-print("正在获取")
-print(from)
-print("中的资源")
-
-local function initDB(DBPath, TableName)
-    local db = sqlite3.open(DBPath)
-    local query = "SELECT name FROM sqlite_master WHERE type='table' AND name='%s'"
-    local iterator, tables = db:nrows(string.format(query, TableName))
-    -- if not exist, create it
-    if not iterator(tables) then
-        query = "CREATE TABLE %s (path TEXT PRIMARY KEY, modification TIMESTAMP,checksum TEXT);"
-        db:exec(string.format(query, TableName))
-    end
-    db:close()
-end
 
 local function openDB(DBPath, TableName)
     local db = sqlite3.open_memory()
@@ -63,12 +44,9 @@ end
 
 local DBPath = output_dir .. "/OriginFileStatus.db"
 local TableName = "file_states"
-initDB(DBPath, TableName)
-local db = openDB(DBPath, TableName)
-print()
-print(countTableRows(db, TableName))
-print("更新文件状态数据库")
 
+print("更新文件状态数据库")
+local db = openDB(DBPath, TableName)
 local need_update_files = {}
 
 for line in io.lines(file_state_path) do
@@ -86,6 +64,7 @@ for i, v in ipairs(need_update_files) do
     local query = string.format("INSERT OR REPLACE INTO %s (path, modification, checksum) VALUES ('%s', %s, '%s');",
         TableName, v, modification, checksum)
     db:exec(query)
+    io.write(string.format("更新 : %s/%s \r", i,total))
 end
 
 realseDB(db, DBPath, TableName)
