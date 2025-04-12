@@ -1,0 +1,11 @@
+<resources>
+
+    <string name="aonesdk_welcome">xxx,欢迎回来</string>
+    <string name="aonesdk_qRegisterAccount">快速注册账号信息</string>
+    <string name="aonesdk_account">账号:</string>
+    <string name="aonesdk_quickregisterpassword">密码:</string>
+    <string name="aonesdk_update_confirm">更新</string>
+    <string name="aonesdk_update_cancel">取消</string>
+    <string name="aonesdk_update_title">发现新版本</string>
+    
+</resources>

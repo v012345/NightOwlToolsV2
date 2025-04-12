@@ -1,0 +1,17 @@
+<resources>
+
+    <!-- Default screen margins, per the Android Design guidelines. -->
+	<dimen name="global_screenshot_bg_padding">20dp</dimen>  
+	<dimen name="aonesdk_update_dialog_width">320dp</dimen>  
+	<dimen name="aonesdk_update_dialog_height">260dp</dimen>
+	<dimen name="aonesdk_update_margin_left_right">24dp</dimen>
+	<dimen name="aonesdk_update_button_margin_bottom">16dp</dimen>
+	<dimen name="aonesdk_update_button_padding">6dp</dimen>
+	<dimen name="aonesdk_update_button_textsize">18sp</dimen>
+	<dimen name="aonesdk_update_title_textsize">24sp</dimen>
+	<dimen name="aonesdk_update_title_margin_top_bottom">12dp</dimen>
+	<dimen name="aonesdk_update_title_underline_height">3dp</dimen>
+	<dimen name="aonesdk_update_button_minheight">0dp</dimen>
+	<dimen name="aonesdk_update_margin_bottom">60dp</dimen>
+	
+</resources>

@@ -1,0 +1,9 @@
+{
+    "appId": "2070", 
+    "appKey": "adc72559912045a783fc0924a580f30d",
+    "channel": "",
+    "host": "api01.dream-plus.com",
+    "port": "7050",
+    "http_port": "8020",
+    "againstFakePay":"true"
+}

@@ -1,0 +1,14 @@
+{
+    "defaultUserSdk": "UserTest", 
+    "defaultIapSdk": "IAPTest", 
+    "sdks": [
+        {
+            "name": "UserTest", 
+            "type": "user"
+        }, 
+        {
+            "name": "IAPTest", 
+            "type": "userPay"
+        }
+    ]
+}

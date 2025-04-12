@@ -1,0 +1,8 @@
+<resources>
+
+    <string name="aonesdk_welcome">xxx,오신 것을 환영합니다!</string>
+    <string name="aonesdk_qRegisterAccount">간편아이디 정보</string>
+    <string name="aonesdk_account">아이디:</string>
+    <string name="aonesdk_quickregisterpassword">비밀번호:</string>
+    
+</resources>

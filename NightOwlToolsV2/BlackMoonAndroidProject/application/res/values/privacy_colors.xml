@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="privacy_colorPrimary">#008577</color>
+    <color name="privacy_colorPrimaryDark">#00574B</color>
+    <color name="privacy_colorAccent">#D81B60</color>
+    <color name="privacy_colorWhite">#FFFFFFFF</color>
+    <color name="privacy_colorBlack">#FF000000</color>
+    <color name="privacy_colorGray">#878787</color>
+    <color name="privacy_colorOrange">#FFE26C25</color>
+    <color name="privacy_colorBlue">#FF036EB8</color>
+</resources>

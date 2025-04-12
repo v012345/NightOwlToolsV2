@@ -1,0 +1,8 @@
+<resources>
+
+    <string name="aonesdk_welcome">xxx, chào mừng trở lại !</string>
+    <string name="aonesdk_qRegisterAccount">Thông tin đăng ký tài khoản</string>
+    <string name="aonesdk_account">Tài khoản :</string>
+    <string name="aonesdk_quickregisterpassword">Pass :</string>
+    
+</resources>

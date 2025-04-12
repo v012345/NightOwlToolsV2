@@ -1,0 +1,10 @@
+<resources>
+    <string name="privacy_exit">拒绝</string>
+    <string name="privacy_agree">同意</string>
+    <string name="privacy_alert">请勾选同意下方的用户协议，即可进入游戏！</string>
+    <string name="privacy_tap">我已详细阅读并同意</string>
+    <string name="privacy_user_title">用户协议</string>
+    <string name="privacy_title">隐私协议</string>
+    <string name="privacy_user_name">《用户协议》</string>
+    <string name="privacy_name">《隐私协议》</string>
+</resources>

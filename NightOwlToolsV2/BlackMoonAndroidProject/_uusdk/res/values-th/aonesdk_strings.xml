@@ -1,0 +1,8 @@
+<resources>
+
+    <string name="aonesdk_welcome">ยินดีต้อนรับ xxx</string>
+    <string name="aonesdk_qRegisterAccount">ข้อมูลไอดีทดลองเล่น</string>
+    <string name="aonesdk_account">ไอดี: </string>
+    <string name="aonesdk_quickregisterpassword">รหัส: </string>
+
+</resources>

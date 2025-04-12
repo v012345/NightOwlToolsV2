@@ -1,0 +1,20 @@
+<resources>
+    <string name="game_loading">正在启动中...</string>
+    <string name="game_update_0">正在更新资源</string>
+    <string name="game_update_1">正在解压资源</string>
+    <string name="game_update_2">正在检验版本信息...</string>
+    <string name="system_prompt">系统提示</string>
+    <string name="game_exit_prompt">是否要退出游戏？</string>
+    <string name="yes">是</string>
+    <string name="no">否</string>
+    <string name="net_connect_fail">网络连接失败，请检查网络！</string>
+    <string name="retry">重试</string>
+    <string name="exit">退出</string>
+    <string name="game_init_fail">游戏初始化失败，请重启游戏！</string>
+    <string name="confirm">确定</string>
+    <string name="get_game_version_fail">读取游戏版本失败，请重试！</string>
+    <string name="get_game_config_fail">读取游戏配置失败，请重启游戏！</string>
+    <string name="get_game_resource_fail">读取游戏资源失败，请重试！</string>
+    <string name="game_video_skip">再次点击跳过视频</string>
+
+</resources>
