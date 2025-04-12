@@ -10,10 +10,10 @@ pushd "%~dp0"
 @REM py脚本都在 Python 文件夹里, 运行目录就是 /BlackMoonTools
 @REM --from_dir "C:\work\BlackMoon\Closers.cocos\client\branches\yougubt5\Resources" ^
 @REM --from_dir "C:\Users\Meteor\Desktop\temp\Resources" ^
-cd ..\..
+cd ..
 py -3 "Python\publish_res.py" ^
-    --from_dir "C:\Users\Meteor\Desktop\temp\Resources" ^
-    --to_dir "C:\Users\Meteor\Desktop\temp\yougubt5\Resources" ^
+    --from_dir "C:\work\BlackMoon\Closers.cocos\client\branches\yougubt5\Resources" ^
+    --to_dir "C:\Users\Meteor\Desktop\temp\yougubt5" ^
 popd
 
 pause
