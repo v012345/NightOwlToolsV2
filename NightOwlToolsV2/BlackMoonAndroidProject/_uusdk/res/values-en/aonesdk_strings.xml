@@ -1,7 +1,0 @@
-<resources>
-
-    <string name="aonesdk_welcome">xxx,welcome back!</string>
-    <string name="aonesdk_qRegisterAccount">Trial account Info</string>
-    <string name="aonesdk_account">Account:</string>
-    <string name="aonesdk_quickregisterpassword">Password:</string>
-</resources>

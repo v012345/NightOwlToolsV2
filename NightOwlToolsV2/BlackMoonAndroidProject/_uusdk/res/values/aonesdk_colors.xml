@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <color name="aonesdk_update_title_color">#4CB7FC</color>
-    <color name="aonesdk_update_title_underline_color">#31AEFF</color>
-    <color name="aonesdk_update_content_color">#000000</color>
-    <color name="aonesdk_update_button_cancel_color">#C8C8C8</color>
-</resources>

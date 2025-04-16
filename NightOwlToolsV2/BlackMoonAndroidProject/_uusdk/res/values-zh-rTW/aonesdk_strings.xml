@@ -1,8 +1,0 @@
-<resources>
-
-    <string name="aonesdk_welcome">xxx,歡迎回來！</string>
-    <string name="aonesdk_qRegisterAccount">快速註冊賬號信息</string>
-    <string name="aonesdk_account">賬號：</string>
-    <string name="aonesdk_quickregisterpassword">密碼：</string>
-
-</resources>

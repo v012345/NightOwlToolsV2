@@ -1,8 +1,0 @@
-<resources>
-
-    <string name="aonesdk_welcome">xxx,お帰りなさい！</string>
-    <string name="aonesdk_qRegisterAccount">快速アカウントを登録</string>
-    <string name="aonesdk_account">アカウント名：</string>
-    <string name="aonesdk_quickregisterpassword">パスワード：</string>
-    
-</resources>

@@ -1,6 +1,0 @@
-{
-    "log_dir": "",
-    "log_keep_days": 6,
-    "log_max_line": 65534,
-    "bugly_id" : "900045855"
-}
