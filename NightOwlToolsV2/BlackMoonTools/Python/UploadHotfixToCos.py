@@ -28,7 +28,7 @@ def parseargs():
 
 
 if __name__ == "__main__":
-    if shutil.which("coscmd") is not None:
+    if shutil.which("coscmd") is None:
         subprocess.check_call([sys.executable, "-m", "pip", "install", "coscmd"])
     (opts, _) = parseargs()
-    subprocess.check_call(["coscmd", "-c", opts.config, "upload","-r",opts.compressed_res, opts.to])
+    subprocess.Popen(["coscmd", "-c", opts.config, "upload","-r",opts.compressed_res, opts.to],creationflags=subprocess.CREATE_NEW_CONSOLE).wait()
