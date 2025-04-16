@@ -24,7 +24,8 @@ if __name__ == "__main__":
         if not list1.get(i):
             list2_has.append(i)
         else:
-            if list2[i][3] != list1[i][3]:
+            if list2[i][0] != list1[i][0]:
+                print(i ,list2[i][0] , list1[i][0] )
                 diff.append(i)
     # print(list1_has)
     # print(list2_has)
