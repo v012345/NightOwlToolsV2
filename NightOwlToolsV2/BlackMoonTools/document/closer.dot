@@ -1,0 +1,74 @@
+digraph closer {
+	closer -> {
+	    cocos2dx_static  [style=filled, fillcolor=green]
+	    cocos2d_lua_static [style=filled, fillcolor=green]
+	    cocosdenshion_static [style=filled, fillcolor=green]
+	    cocos_extension_static[style=filled, fillcolor=green]
+	    cocos_curl_static[style=filled, fillcolor=green]
+	    spine_static  [style=filled, fillcolor=green]
+	    aonesdk_static [style=filled, fillcolor=green]
+	    patcher_static [style=filled, fillcolor=green]
+	    
+	};
+	aonesdk_static->{
+	    cputils_static [style=filled, fillcolor=green]
+	    patcher_static [style=filled, fillcolor=green]
+	    cocos_curl_static [style=filled, fillcolor=green]
+	    cocos_zlib_static [style=filled, fillcolor=green]
+	};
+	cputils_static->{bugly_native_prebuilt [style=filled, fillcolor=green]}
+	cocos2d_lua_static -> {
+        cocos2dx_static[style=filled, fillcolor=green]
+        cocos2d_lua_android_static[style=filled, fillcolor=green]
+    };
+    cocos2d_lua_android_static ->{
+        luajit_static[style=filled, fillcolor=green];
+    }    
+    cocos2dx_static -> {
+        spine_static [style=filled, fillcolor=green]
+        cocostudio_static  [style=filled, fillcolor=green]
+        audioengine_static [style=filled, fillcolor=green]
+        
+    };
+    cocostudio_static -> {
+        cocos_ui_static  [style=filled, fillcolor=green]
+        cocosdenshion_static  [style=filled, fillcolor=green]
+        cocos_flatbuffers_static [style=filled, fillcolor=green]
+        
+    };
+    cocos_ui_static -> cocos_extension_static [style=filled, fillcolor=green];
+    cocosdenshion_static -> audioengine_static [style=filled, fillcolor=green];
+    
+    audioengine_static -> {
+        libvorbisidec [style=filled, fillcolor=green]
+        libpvmp3dec [style=filled, fillcolor=green]
+        
+    };
+    
+    spine_static -> cocos2dx_internal_static[style=filled, fillcolor=green];
+    
+
+  
+    cocos_curl_static -> {
+        cocos_crypto_static [style=filled, fillcolor=green]
+        cocos_ssl_static[style=filled, fillcolor=green]
+        
+    };
+    
+	cocos_extension_static -> {
+	    box2d_static [style=filled, fillcolor=green]
+	    cocos2dx_internal_static[style=filled, fillcolor=green]
+	    
+	};
+	cocos2dx_internal_static -> {
+	    cocos_freetype2_static[style=filled, fillcolor=green] 
+    	cocos_png_static[style=filled, fillcolor=green] 
+	    cocos_jpeg_static[style=filled, fillcolor=green]
+    	cocos_tiff_static[style=filled, fillcolor=green]
+    	cocos_webp_static[style=filled, fillcolor=green]
+    	cocos_zlib_static[style=filled, fillcolor=green]
+    	recast_static[style=filled, fillcolor=green]
+    	cocos2dxandroid_static[style=filled, fillcolor=green]
+    	cpufeatures[style=filled, fillcolor=green]
+	};
+}
