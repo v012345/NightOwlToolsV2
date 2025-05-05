@@ -15,9 +15,8 @@ add_library(aonesdk_static STATIC
     protocols/platform/android/ProtocolPlayer.cpp
     protocols/platform/android/ProtocolVoice.cpp
     protocols/platform/android/ProtocolSupport.cpp
-    protocols/platform/android/../../PluginManager.cpp
-    protocols/platform/android/../../PluginParam.cpp
-
+    protocols/PluginManager.cpp
+    protocols/PluginParam.cpp
     src/AoneClient.cpp
     src/AoneClient_c.cpp
     src/AoneLiveStream.cpp
