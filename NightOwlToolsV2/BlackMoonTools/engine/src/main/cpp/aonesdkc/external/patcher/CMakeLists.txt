@@ -32,7 +32,7 @@ target_compile_options(patcher_static PRIVATE
 target_include_directories(patcher_static
     PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
-    ${CMAKE_CURRENT_SOURCE_DIR}/external/curl/include/android
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../../cocos2d/external/curl/include/android
     ${CMAKE_CURRENT_SOURCE_DIR}/external/zlib/include/android
     ${CMAKE_CURRENT_SOURCE_DIR}/external/lua/include
     ${CMAKE_CURRENT_SOURCE_DIR}/../cputils/include
