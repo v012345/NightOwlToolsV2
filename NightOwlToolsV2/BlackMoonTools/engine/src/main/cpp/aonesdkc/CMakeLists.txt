@@ -1,0 +1,91 @@
+add_library(aonesdk_static STATIC
+    jni/aonesdk/AoneSdkProxy.cpp
+    protocols/platform/android/PluginFactory.cpp
+    protocols/platform/android/PluginJniHelper.cpp
+    protocols/platform/android/PluginUtils.cpp
+    protocols/platform/android/PluginProtocol.cpp
+    protocols/platform/android/ProtocolAnalytics.cpp
+    protocols/platform/android/ProtocolIAP.cpp
+    protocols/platform/android/ProtocolAds.cpp
+    protocols/platform/android/ProtocolShare.cpp
+    protocols/platform/android/ProtocolUser.cpp
+    protocols/platform/android/ProtocolSocial.cpp
+    protocols/platform/android/ProtocolPush.cpp
+    protocols/platform/android/ProtocolStream.cpp
+    protocols/platform/android/ProtocolPlayer.cpp
+    protocols/platform/android/ProtocolVoice.cpp
+    protocols/platform/android/ProtocolSupport.cpp
+    protocols/platform/android/../../PluginManager.cpp
+    protocols/platform/android/../../PluginParam.cpp
+
+    src/AoneClient.cpp
+    src/AoneClient_c.cpp
+    src/AoneLiveStream.cpp
+    src/AoneVoice.cpp
+    src/AoneSupport.cpp
+    src/AonePlayer.cpp
+    src/aonesdk.cpp
+    src/AonesdkConfig.cpp
+    src/msg_xx_config.cpp
+    src/msg_xx_apiserver.cpp
+    src/msg_xx_apiserver_ex.cpp
+    src/msg_xx_entryserver.cpp
+    src/msg_xx_error.cpp
+    src/msg_xx_global.cpp
+    src/msg_xx_idcard.cpp
+    src/uuSdkConfig.cpp
+    src/uuSdkConfigHelper.cpp
+    src/uuSdkManager.cpp
+    src/uuSdkResultHelper.cpp
+    src/uuSdkResultListener.cpp
+    src/uuSdkWrapper.cpp
+    xnet/aone2_helper.cpp
+    xnet/aone2_rc4_parser.cpp
+    xnet/xcore_json.cpp
+    xnet/xcore_md5.cpp
+    xnet/xcore_parser.cpp
+    xnet/xcore_rc4.cpp
+    xnet/xnet_sock_addr.cpp
+    xnet/xnet_sock_connector.cpp
+    xnet/xnet_sock_transfer.cpp
+    xnet/xnet_socket.cpp
+    xnet/xcore_byte_order.cpp
+    xnet/xcore_str_util.cpp
+    platform/android/uuDevice-android.cpp
+    platform/android/uuNetAsync-android.cpp
+    platform/android/AoneScreenShot.cpp
+    platform/android/AoneDeepLink.cpp
+    platform/android/AoneWifiManager.cpp
+    platform/android/AoneAndroidImagePicker.cpp
+    platform/android/UUGenerateQRCode-android.cpp
+)
+
+target_include_directories(aonesdk_static
+    PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/jni
+    ${CMAKE_CURRENT_SOURCE_DIR}/jni/aonesdk
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/xnet
+    ${CMAKE_CURRENT_SOURCE_DIR}/platform
+    ${CMAKE_CURRENT_SOURCE_DIR}/platform/android
+    ${CMAKE_CURRENT_SOURCE_DIR}/protocols/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/protocols/platform/android
+    ${CMAKE_CURRENT_SOURCE_DIR}/external/patcher/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/external/curl/include/android/curl
+    ${CMAKE_CURRENT_SOURCE_DIR}/external/zlib/include/android
+    ${CMAKE_CURRENT_SOURCE_DIR}/external/cputils/include
+    PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
+target_link_libraries(aonesdk_static
+    PUBLIC
+    log
+    android
+    PRIVATE
+    -Wl,--whole-archive patcher_static -Wl,--no-whole-archive
+    -Wl,--whole-archive cocos_curl_static -Wl,--no-whole-archive
+    -Wl,--whole-archive cocos_zlib_static -Wl,--no-whole-archive
+    -Wl,--whole-archive cputils_static -Wl,--no-whole-archive
+)
