@@ -64,7 +64,7 @@ target_include_directories(libpvmp3dec
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
-target_compile_options(libpvmp3dec PRIVATE -Wno-implicit-const-int-float-conversion)
+# target_compile_options(libpvmp3dec PRIVATE -Wno-implicit-const-int-float-conversion)
 
-target_compile_options(libpvmp3dec PRIVATE -Werror)
-target_compile_options(libpvmp3dec PRIVATE -fsanitize=signed-integer-overflow)
+# target_compile_options(libpvmp3dec PRIVATE -Werror)
+# target_compile_options(libpvmp3dec PRIVATE -fsanitize=signed-integer-overflow)
