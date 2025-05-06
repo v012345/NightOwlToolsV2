@@ -1,0 +1,11 @@
+@echo off
+chcp 65001 >nul
+cls
+
+@echo off
+pushd "%~dp0"
+cd ..
+java -jar jar\apktool_2.11.1.jar d temp\app.apk -o temp\app_src
+popd
+pause
+
