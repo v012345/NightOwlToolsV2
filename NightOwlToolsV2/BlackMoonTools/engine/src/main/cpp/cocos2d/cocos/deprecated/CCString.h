@@ -200,15 +200,12 @@ public:
     std::string _string;
 };
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 struct StringCompare : public std::binary_function<__String *, __String *, bool> {
     public:
         bool operator() (__String * a, __String * b) const {
             return strcmp(a->getCString(), b->getCString()) < 0;
         }
 };
-#pragma clang diagnostic pop
 
 #define StringMake(str) String::create(str)
 #define ccs             StringMake

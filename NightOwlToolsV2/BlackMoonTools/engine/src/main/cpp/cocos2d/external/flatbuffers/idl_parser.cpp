@@ -787,7 +787,7 @@ StructDef &Parser::StartStruct() {
   struct_def.name = name;
   // Move this struct to the back of the vector just in case it was predeclared,
   // to preserve declaration order.
-  (void)remove(structs_.vec.begin(), structs_.vec.end(), &struct_def);
+  remove(structs_.vec.begin(), structs_.vec.end(), &struct_def);
   structs_.vec.back() = &struct_def;
   return struct_def;
 }
