@@ -63,12 +63,15 @@ extern "C"
     }
     void Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeTouchesBegin(JNIEnv *env, jobject thiz, jint id, jfloat x, jfloat y);
     void Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeRender(JNIEnv *env);
+    jint JNI_OnLoad(JavaVM *vm, void *reserved);
     // 让链接器别优化掉这些 JNI 方法
     void Java_making_cmake_happy(void)
     {
         volatile void *p1 = (void *)Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeTouchesBegin;
         volatile void *p2 = (void *)Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeRender;
+        volatile void *p3 = (void *)JNI_OnLoad;
         (void)p1;
         (void)p2;
+        (void)p3;
     }
 }
