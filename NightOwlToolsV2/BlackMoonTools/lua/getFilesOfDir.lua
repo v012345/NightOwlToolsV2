@@ -23,3 +23,4 @@ end
 local file = io.open(output_to, "w") or error("can't open " .. output_to)
 file:write(table.concat(y, "\n"))
 file:close()
+print()
