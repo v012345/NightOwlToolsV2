@@ -12,8 +12,8 @@
 #define _AESpineData_H_
 
 #include "platform/AEStdC.h"
-#include "spine/spine-cocos2dx.h"
-#include "spine/extension.h"
+#include <spine/spine-cocos2dx.h>
+#include <spine/extension.h>
 
 NS_AE_BEGIN
 using namespace spine;
