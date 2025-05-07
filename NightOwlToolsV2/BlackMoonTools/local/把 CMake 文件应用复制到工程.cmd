@@ -5,7 +5,7 @@ cls
 @echo off
 pushd "%~dp0"
 cd ..
-..\NightOwlToolsV2.exe lua\copyFilesToWhere.lua "engine" "C:\work\BlackMoon\BlackMoonAndroid\engine" 
+..\lua.exe lua\copyFilesToWhere.lua "engine" "C:\work\BlackMoon\BlackMoonAndroid\engine" 
 
 popd
 

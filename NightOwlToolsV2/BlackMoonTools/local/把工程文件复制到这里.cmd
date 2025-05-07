@@ -5,9 +5,9 @@ cls
 @echo off
 pushd "%~dp0"
 cd ..
-..\NightOwlToolsV2.exe lua\copyDirStruct.lua "C:\work\BlackMoon\BlackMoonAndroid\engine" "engine" 
-..\NightOwlToolsV2.exe lua\copyEngineFiles.lua "C:\work\BlackMoon\BlackMoonAndroid\engine" "engine" "temp\engine_files.txt"
-..\NightOwlToolsV2.exe lua\remove_empty_dirs.lua "engine"
+..\lua.exe lua\copyDirStruct.lua "C:\work\BlackMoon\BlackMoonAndroid\engine" "engine" 
+..\lua.exe lua\copyEngineFiles.lua "C:\work\BlackMoon\BlackMoonAndroid\engine" "engine" "temp\engine_files.txt"
+..\lua.exe lua\remove_empty_dirs.lua "engine"
 popd
 
 pause

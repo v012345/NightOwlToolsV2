@@ -20,7 +20,7 @@
             "stopOnEntry": false,
             "useCHook": true,
             "autoPathMode": true,
-            "program": "${workspaceFolder}/NightOwlToolsV2.exe",
+            "program": "${workspaceFolder}/lua.exe",
             "args": [
                 "${file}"
             ],
