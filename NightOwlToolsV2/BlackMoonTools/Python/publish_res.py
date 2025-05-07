@@ -16,7 +16,7 @@ preprocess_cmd = {
     "android": "py -3 Python\\ResToEtc.py --from %s --to %s --res %s --out %s"
 }
 
-lua_exe = '../NightOwlToolsV2.exe'
+lua_exe = '../lua.exe'
 
 
 def get_args():
