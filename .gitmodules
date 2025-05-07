@@ -1,9 +1,9 @@
-[submodule "extensions/luafilesystem"]
-	path = extensions/luafilesystem
+[submodule "lua_source_code/extensions/luafilesystem"]
+	path = lua_source_code/extensions/luafilesystem
 	url = git@github.com:lunarmodules/luafilesystem.git
-[submodule "extensions/luasocket"]
-	path = extensions/luasocket
+[submodule "lua_source_code/extensions/luasocket"]
+	path = lua_source_code/extensions/luasocket
 	url = git@github.com:lunarmodules/luasocket.git
-[submodule "NightOwlToolsV2/pure_lua_SHA"]
-	path = NightOwlToolsV2/pure_lua_SHA
+[submodule "tool_scripts/pure_lua_SHA/pure_lua_SHA"]
+	path = tool_scripts/pure_lua_SHA/pure_lua_SHA
 	url = git@github.com:Egor-Skriptunoff/pure_lua_SHA.git
