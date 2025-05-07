@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(NightOwlToolsV2)
+project(lua)
 
 # 构建好的可执行文件放到一块, 不然动态库要手动复制到可执行文件的目录下
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)

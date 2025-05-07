@@ -1,8 +1,7 @@
-rem NOTV2 == NightOwlToolsV2
 @echo off
 rem 设置相对路径的源文件和目标文件夹
-set source_file=%~dp0build\bin\Release\NightOwlToolsV2.exe
-set destination_folder=%~dp0NightOwlToolsV2
+set source_file=%~dp0build\bin\Release\lua.exe
+set destination_folder=%~dp0..\tool_scripts\bin
 
 rem 直接返回（如果源文件不存在）
 if not exist "%source_file%" (
@@ -20,4 +19,4 @@ xcopy /Y "%source_file%" "%destination_folder%\"
 
 rem 显示完成消息
 echo %source_file% move succeed %destination_folder%
-@REM pause
+pause
