@@ -1,13 +1,18 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python Debugger: Current File with Arguments",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "args": "${command:pickArgs}"
+        },
+        {
+            "name": "Lua Debugger",
             "type": "LuaHelper-Debug",
             "request": "launch",
-            "name": "LuaHelper-Attach",
             "description": "通用模式,通常调试项目请选择此模式",
             "cwd": "${workspaceFolder}",
             "luaFileExtension": "",
@@ -15,19 +20,10 @@
             "stopOnEntry": false,
             "useCHook": true,
             "autoPathMode": true,
-            "program": "${workspaceFolder}/NightOwlToolsV2.exe"
-        },
-        {
-            "type": "LuaHelper-Debug",
-            "request": "launch",
-            "name": "LuaHelper-DebugFile",
-            "description": "独立文件调试模式",
-            "luaPath": "",
-            "packagePath": [],
-            "luaFileExtension": "",
-            "connectionPort": 8818,
-            "stopOnEntry": true,
-            "useCHook": true
+            "program": "${workspaceFolder}/NightOwlToolsV2.exe",
+            "args": [
+                "${file}"
+            ],
         }
-    ]
+    ],
 }
