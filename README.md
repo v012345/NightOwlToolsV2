@@ -5,6 +5,8 @@ cd NightOwlToolsV2
 git submodule init
 git submodule update
 ```
+
+todo 要测试!!!
 ## 删子模块
 ```git bash
 $ git submodule deinit -f tool_scripts/extensions/
