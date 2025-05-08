@@ -20,9 +20,12 @@
             "stopOnEntry": false,
             "useCHook": true,
             "autoPathMode": true,
-            "program": "${workspaceFolder}/lua.exe",
+            "program": "${workspaceFolder}/bin/lua.exe",
             "args": [
-                "${file}"
+                "${file}",
+                // "C:\\work\\BlackMoon\\BlackMoonAndroid\\engine",
+                // "engine",
+                // "temp\\commands_files1.txt"
             ],
         }
     ],
