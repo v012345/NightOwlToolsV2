@@ -7,3 +7,6 @@
 [submodule "tool_scripts/extensions"]
 	path = tool_scripts/extensions
 	url = git@github.com:Egor-Skriptunoff/pure_lua_SHA.git
+[submodule "tool_scripts/extensions/pure_lua_SHA"]
+	path = tool_scripts/extensions/pure_lua_SHA
+	url = git@github.com:Egor-Skriptunoff/pure_lua_SHA.git
