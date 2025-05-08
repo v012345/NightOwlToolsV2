@@ -1,4 +1,4 @@
-require("LuaPanda").start("127.0.0.1", 8818);
+
 xpcall(function()
     for k, v in pairs(arg) do
         print(k, v)

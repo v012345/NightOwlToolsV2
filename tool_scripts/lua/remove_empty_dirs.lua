@@ -24,5 +24,5 @@ local function remove_empty_dirs(path)
         lfs.rmdir(path) -- 用这个
     end
 end
-
+print("正在清理空目录")
 remove_empty_dirs(arg[1])

@@ -1,4 +1,5 @@
 Log.txt
 /*.exe
 /*.db
-/temp
+temp/**/*
+!temp/.gitkeep
