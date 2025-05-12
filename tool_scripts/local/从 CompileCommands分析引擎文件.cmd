@@ -12,14 +12,14 @@ set engine=C:\work\BlackMoon\BlackMoonAndroid\engine
 cd ..
 
 @REM REM 调用 Python 脚本分析 compile_commands.json
-@REM py -3 Python\analysisCompileCommands.py ^
-@REM     "%engine%\.cxx\tools\debug\arm64-v8a\compile_commands.json" ^
-@REM     "%engine%\.cxx\tools\debug\armeabi-v7a\compile_commands.json" ^
-@REM     "%engine%\.cxx\tools\debug\x86\compile_commands.json" ^
-@REM     "%engine%\.cxx\tools\debug\x86_64\compile_commands.json" ^
-@REM     "%engine%\.cxx\tools\debug\riscv64\compile_commands.json" ^
-@REM     -t temp\commands_files.txt ^
-@REM     -r %engine%
+py -3 Python\analysisCompileCommands.py ^
+    "%engine%\.cxx\tools\debug\arm64-v8a\compile_commands.json" ^
+    "%engine%\.cxx\tools\debug\armeabi-v7a\compile_commands.json" ^
+    "%engine%\.cxx\tools\debug\x86\compile_commands.json" ^
+    "%engine%\.cxx\tools\debug\x86_64\compile_commands.json" ^
+    "%engine%\.cxx\tools\debug\riscv64\compile_commands.json" ^
+    -t temp\commands_files.txt ^
+    -r %engine%
 bin\lua.exe lua\copyDirStruct.lua "%engine%" "engine" 
 bin\lua.exe lua\copyFileByTxt.lua "%engine%" engine temp\commands_files.txt
 @REM 这里没有什么好方法, 只好把 a so CMakeList 都复制过来了
