@@ -19,3 +19,10 @@ $ rm -rf .git/modules/tool_scripts/extensions/
 git submodule add git@github.com:Egor-Skriptunoff/pure_lua_SHA.git tool_scripts/extensions/pure_lua_SHA
 
 ```
+
+## Refresh .gitignore
+```
+git rm -r --cached .
+git add .
+git commit -m "Refresh .gitignore"
+```
