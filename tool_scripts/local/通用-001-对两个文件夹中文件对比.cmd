@@ -1,0 +1,34 @@
+@echo off
+chcp 65001 >nul
+cls
+
+pushd "%~dp0"
+cd ..
+
+setlocal EnableDelayedExpansion
+
+set LUA_PARAM=return { ^
+exclude = { '.git', '.svn', '.vscode' } ^
+}
+
+set root1="C:\work\Legend\dev"
+set root2="C:\work\Legend\db"
+
+@REM "就是生成一个 文件名 + md5 的 csv"
+bin\lua.exe lua\genMd5OfDir.lua %root1% "temp\common_001_1.csv" "!LUA_PARAM!"
+bin\lua.exe lua\genMd5OfDir.lua %root2% "temp\common_001_2.csv" "!LUA_PARAM!"
+
+py -3  Python\compareDirs.py ^
+--root1 !root1! ^
+--csv1 "temp\common_001_1.csv" ^
+--root1_has "temp\root1_has.txt" ^
+--root2 !root2! ^
+--csv2 "temp\common_001_2.csv" ^
+--root2_has "temp\root2_has.txt" ^
+--common_has "temp\common_has.txt" ^
+--common_but_diff "temp\common_but_diff.txt"
+
+endlocal
+popd
+
+pause

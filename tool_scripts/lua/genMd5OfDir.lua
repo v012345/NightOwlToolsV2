@@ -20,7 +20,7 @@ local y = {}
 for i, v in ipairs(x) do
     io.write(string.format("正在计算 md5 %s/%s\r", i, total))
     local md5 = Common.Checksum(v)
-    y[#y + 1] = string.format("%s|%s", string.gsub(v, from, "", 1), md5)
+    y[#y + 1] = string.format("%s,%s", string.gsub(v, from, "", 1), md5)
 end
 print()
 local file = io.open(output_to, "w") or error("can't open " .. output_to)
