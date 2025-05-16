@@ -7,7 +7,10 @@ cd ..
 
 setlocal EnableDelayedExpansion
 
-set LUA_PARAM="return { exclude = { ['.git'] = true, ['.svn'] = true, ['.vscode'] = true, ['dev'] = true, ['no_run'] = true } , ext = { ['.lua'] = true }}"
+set LUA_PARAM=return { ^
+exclude = { '.git', '.svn', '.vscode', 'dev', 'no_run' } , ^
+ext = { '.lua' }, ^
+}
 bin\lua.exe lua\copyDirStructWithConfig.lua "C:\work\Legend\client" "temp\no_run" !LUA_PARAM!
 bin\lua.exe lua\getFilesOfDirWithConfig.lua "C:\work\Legend\client" "temp\996lua.txt" !LUA_PARAM!
 bin\lua.exe lua\copyFileByTxt.lua "C:\work\Legend\client" "temp\no_run" "temp\996lua.txt"

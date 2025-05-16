@@ -8,18 +8,24 @@ if not func then
     return
 end
 local config = func()
-local excludeDir = config.exclude
-local ext = config.ext
+local excludeDir = {}
+for k, v in ipairs(config.exclude) do
+    excludeDir[v] = true
+end
+local ext = {}
+for k, v in ipairs(config.ext) do
+    ext[v] = true
+end
 
 local x = {}
 os.execute("chcp 65001 >nul")
-print(string.format("正在获取 %s 下的全部文件",from))
+print(string.format("正在获取 %s 下的全部文件", from))
 Common.GetAllFilesOfDirectory(from, excludeDir, x)
 local total = #x
 local y = {}
 for i, v in ipairs(x) do
     io.write(string.format("正在过滤文件 %s/%s\r", i, total))
-    if ext[v:match("^.+(%..+)$")] then
+    if ext[v:match("^.+(%..+)$"):lower()] then
         y[#y + 1] = string.gsub(v, from, "", 1)
     end
 end
