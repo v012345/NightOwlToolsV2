@@ -8,8 +8,14 @@ cd ..
 setlocal EnableDelayedExpansion
 
 set LUA_PARAM="return { exclude = { ['.git'] = true, ['.svn'] = true, ['.vscode'] = true, ['dev'] = true, ['no_run'] = true } , ext = { ['.lua'] = true }}"
-
+bin\lua.exe lua\copyDirStructWithConfig.lua "C:\work\Legend\client" "temp\no_run" !LUA_PARAM!
 bin\lua.exe lua\getFilesOfDirWithConfig.lua "C:\work\Legend\client" "temp\996lua.txt" !LUA_PARAM!
+bin\lua.exe lua\copyFileByTxt.lua "C:\work\Legend\client" "temp\no_run" "temp\996lua.txt"
+bin\lua.exe lua\remove_empty_dirs.lua "temp\no_run"
+bin\lua.exe lua\genMainLuaFor996.lua "temp\996lua.txt" "temp\main.lua"
+
+@REM "之后把 no_run 复制到 C:\work\Legend\client 和 C:\work\Legend\client\mod_launcher\stab 下"
+@REM "把 temp\main.lua 复制到 C:\work\Legend\client\mod_launcher\stab\scripts 覆盖原文件"
 endlocal
 popd
 
