@@ -13,6 +13,7 @@ exclude = { '.git', '.svn', '.vscode', 'dev', 'no_run' } ^
 }
 
 bin\lua.exe lua\genSha1OfDir.lua "C:\work\Legend\M2_241107" "temp\common_001.csv" "!LUA_PARAM!"
+bin\lua.exe lua\genSha1OfDir.lua "C:\work\牛马沉默\MirServer" "temp\common_002.csv" "!LUA_PARAM!"
 
 endlocal
 popd
