@@ -2,11 +2,9 @@ import subprocess
 import shutil
 from optparse import OptionParser
 import os
-import importlib
 import sys
-import xlwt
+import concurrent.futures
 import hashlib
-import time
 import json
 
 parser = OptionParser()
@@ -56,6 +54,14 @@ if shutil.which("coscmd") is None:
     subprocess.check_call(
         [sys.executable, "-m", "pip", "install", "coscmd"])
 
+
+def download_file(file_info):
+    subprocess.run([
+        "coscmd", "-c", opts.config, "download",
+        file_info.get("uri"), opts.client + "/" + file_info.get("key")
+    ])
+
+
 if __name__ == '__main__':
     (opts, args) = parser.parse_args()
     digital_res = opts.client + "/digital_res.json"
@@ -81,14 +87,20 @@ if __name__ == '__main__':
         elif info.get("md5") != v.get("md5"):
             to_download.append(info)
 
-    for u in to_download:
-        subprocess.Popen(["coscmd", "-c", opts.config, "download", u.get("uri"), opts.client + "/" + u.get("key")
-                          ]).wait()
+    # for u in to_download:
+    #     subprocess.Popen(["coscmd", "-c", opts.config, "download", u.get("uri"), opts.client + "/" + u.get("key")
+    #                       ]).wait()
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
+        # 提交所有任务到线程池
+        futures = [executor.submit(download_file, u) for u in to_download]
+        # 等待所有任务完成
+        concurrent.futures.wait(futures)
 
     print(f"更新 {len(to_download)} 个文件")
     dev = opts.client + "\\dev"
-    extensions = [".png", ".plist", ".mp3", ".jpg", ".ttf", ".map"]
-    # extensions = [".mp3", ".ttf", ]
+    # extensions = [".png", ".plist", ".mp3", ".jpg", ".ttf", ".map"]
+    extensions = [".jpg", ".map", ]
     local_all_file = []
     for i in find_files(dev, extensions):
         local_all_file.append(os.path.relpath(i, opts.client))

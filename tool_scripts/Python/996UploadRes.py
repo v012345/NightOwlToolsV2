@@ -2,13 +2,10 @@ import subprocess
 import shutil
 from optparse import OptionParser
 import os
-import importlib
 import sys
-import xlwt
 import hashlib
-import time
 import json
-
+import concurrent.futures
 parser = OptionParser()
 parser.add_option("--client", action="store",
                   dest="client", type="string")
@@ -56,6 +53,14 @@ if shutil.which("coscmd") is None:
     subprocess.check_call(
         [sys.executable, "-m", "pip", "install", "coscmd"])
 
+
+def upload_file(file_info):
+    subprocess.run([
+        "coscmd", "-c", opts.config, "upload",
+        opts.client + "/" + file_info.get("key"), file_info.get("uri")
+    ])
+
+
 if __name__ == '__main__':
 
     (opts, args) = parser.parse_args()
@@ -67,8 +72,8 @@ if __name__ == '__main__':
         db = {}
 
     dev = opts.client + "\\dev"
-    extensions = [".png", ".plist", ".mp3", ".jpg", ".ttf", ".map"]
-    # extensions = [".mp3", ".ttf", ]
+    # extensions = [".png", ".plist", ".mp3", ".jpg", ".ttf", ".map"]
+    extensions = [".jpg", ".map", ]
     files = find_files(dev, extensions)
 
     to_upload = []
@@ -99,10 +104,11 @@ if __name__ == '__main__':
             to_upload.append(info)
     print()
     print(f"要上传 {len(to_upload)} 个文件")
-    for u in to_upload:
-        subprocess.Popen(["coscmd", "-c", opts.config, "upload", opts.client + "/"+u.get("key"),
-                          u.get("uri")]).wait()
-
+   # 使用线程池并发上传
+    with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
+        futures = [executor.submit(upload_file, u) for u in to_upload]
+        concurrent.futures.wait(futures)
+    print(f"上传了 {len(to_upload)} 个文件")
     for info in to_upload:
         db[info.get("key")] = info
 
@@ -110,4 +116,6 @@ if __name__ == '__main__':
     for file in local_all_file:
         new_db[file] = db.get(file)
     with open(digital_res, "w", encoding="utf-8") as f:
+        json.dump(new_db, f, ensure_ascii=False, indent=4)
+    with open(opts.client + "/digital_res.json", "w", encoding="utf-8") as f:
         json.dump(new_db, f, ensure_ascii=False, indent=4)
