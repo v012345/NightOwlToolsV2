@@ -99,8 +99,8 @@ if __name__ == '__main__':
 
     print(f"更新 {len(to_download)} 个文件")
     dev = opts.client + "\\dev"
-    # extensions = [".png", ".plist", ".mp3", ".jpg", ".ttf", ".map"]
-    extensions = [".jpg", ".map", ]
+    extensions = [".png", ".plist", ".mp3", ".jpg", ".ttf", ".map"]
+    # extensions = [".jpg", ".map", ]
     local_all_file = []
     for i in find_files(dev, extensions):
         local_all_file.append(os.path.relpath(i, opts.client))

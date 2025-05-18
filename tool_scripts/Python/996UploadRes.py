@@ -72,8 +72,8 @@ if __name__ == '__main__':
         db = {}
 
     dev = opts.client + "\\dev"
-    # extensions = [".png", ".plist", ".mp3", ".jpg", ".ttf", ".map"]
-    extensions = [".jpg", ".map", ]
+    extensions = [".png", ".plist", ".mp3", ".jpg", ".ttf", ".map"]
+    # extensions = [".jpg", ".map", ]
     files = find_files(dev, extensions)
 
     to_upload = []
