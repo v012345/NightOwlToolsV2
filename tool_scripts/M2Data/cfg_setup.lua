@@ -1,6 +1,7 @@
 return {
     lua = {
         key = "id",
+        sort_by = "id",
         ki = {
             ["idx"] = 1,
             ["id"] = 2,

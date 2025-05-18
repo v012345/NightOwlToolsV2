@@ -1,6 +1,7 @@
 return {
     lua = {
         key = "MagicID",
+        sort_by = "MagicID",
         ki = {
             ["MagicID"] = 1,
             ["skillgroup"] = 2,

@@ -1,6 +1,7 @@
 return {
     lua = {
-        key = "index",
+        key = -1,
+        sort_by = "index",
         ki = {
             ["index"] = 1,
             ["id"] = 2,
@@ -45,7 +46,7 @@ return {
         }
     },
     py = {
-        key = "index",
+        key = -1,
         ki = {
             ["index"] = 1,
             ["id"] = 2,
