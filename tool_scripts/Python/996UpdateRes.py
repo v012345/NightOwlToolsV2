@@ -52,6 +52,10 @@ def gen_uri(key, timestamp):
     return os.path.join(dir_name, f"{name}_{timestamp}{ext}")
 
 
+if shutil.which("coscmd") is None:
+    subprocess.check_call(
+        [sys.executable, "-m", "pip", "install", "coscmd"])
+
 if __name__ == '__main__':
     (opts, args) = parser.parse_args()
     digital_res = opts.client + "/digital_res.json"
@@ -77,15 +81,11 @@ if __name__ == '__main__':
         elif info.get("md5") != v.get("md5"):
             to_download.append(info)
 
-    # for i in to_download:
-    #     print(i["key"])
-    # if shutil.which("coscmd") is None:
-    #     subprocess.check_call(
-    #         [sys.executable, "-m", "pip", "install", "coscmd"])
-    # subprocess.Popen(["coscmd", "-c", opts.config, "upload", "-r", opts.compressed_res,
-    #                  opts.to], creationflags=subprocess.CREATE_NEW_CONSOLE).wait()
-    print(f"更新 {len(to_download)} 个文件")
+    for u in to_download:
+        subprocess.Popen(["coscmd", "-c", opts.config, "download", u.get("uri"), opts.client + "/" + u.get("key")
+                          ]).wait()
 
+    print(f"更新 {len(to_download)} 个文件")
     dev = opts.client + "\\dev"
     extensions = [".png", ".plist", ".mp3", ".jpg", ".ttf", ".map"]
     # extensions = [".mp3", ".ttf", ]

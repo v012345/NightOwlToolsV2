@@ -52,6 +52,10 @@ def gen_uri(key, timestamp):
     return os.path.join(dir_name, f"{name}_{timestamp}{ext}")
 
 
+if shutil.which("coscmd") is None:
+    subprocess.check_call(
+        [sys.executable, "-m", "pip", "install", "coscmd"])
+
 if __name__ == '__main__':
 
     (opts, args) = parser.parse_args()
@@ -95,11 +99,9 @@ if __name__ == '__main__':
             to_upload.append(info)
     print()
     print(f"要上传 {len(to_upload)} 个文件")
-    # if shutil.which("coscmd") is None:
-    #     subprocess.check_call(
-    #         [sys.executable, "-m", "pip", "install", "coscmd"])
-    # subprocess.Popen(["coscmd", "-c", opts.config, "upload", "-r", opts.compressed_res,
-    #                  opts.to], creationflags=subprocess.CREATE_NEW_CONSOLE).wait()
+    for u in to_upload:
+        subprocess.Popen(["coscmd", "-c", opts.config, "upload", opts.client + "/"+u.get("key"),
+                          u.get("uri")]).wait()
 
     for info in to_upload:
         db[info.get("key")] = info
