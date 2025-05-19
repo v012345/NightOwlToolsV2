@@ -115,6 +115,7 @@ if __name__ == '__main__':
         if i % 10 == 0:
             update_json_file(db, digital_res)
     update_json_file(db, digital_res)
+    print()
     # 使用线程池并发上传
     # with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
     #     futures = [executor.submit(upload_file, u) for u in to_upload]

@@ -8,7 +8,7 @@ setlocal EnableDelayedExpansion
 
 set client_dir=C:\work\Legend\996M2_client
 
-py -3 Python\996DownloadRes.py  --client "%client_dir%" --config "config\BlackMoonBt5.config"
+py -3 Python\996UpdateRes.py  --client "%client_dir%" --config "config\temp.config"
 
 endlocal
 popd
