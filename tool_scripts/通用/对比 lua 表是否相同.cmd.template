@@ -21,13 +21,13 @@ set t[12]=cfg_setup
 set t[13]=cfg_game_data
 set t[14]=cfg_model_info
 set t[15]=cfg_buff
-@REM set t[16]=cfg_PulsDesc
+set t[16]=cfg_PulsDesc
 set count=15
 
 :: 遍历数组
 for /L %%i in (1,1,%count%) do (
   set t=!t[%%i]!
-  bin\lua.exe lua\compareLuaTable.lua "temp.dev.!t!"  "temp.dev_by_exe.!t!"
+  bin\lua.exe lua\isTableContainTable.lua "temp.dev.!t!"  "temp.dev_by_exe.!t!"
 )
 
 endlocal
