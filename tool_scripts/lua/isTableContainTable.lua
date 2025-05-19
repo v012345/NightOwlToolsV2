@@ -10,15 +10,15 @@ local function is_A_contain_B(A, B)
             for i, j in pairs(v) do
                 if A[k][i] ~= j then
                     if not (j == "" and A[k][i] == nil) then
-                        if tostring(j) ~= tostring(A[k][i]) then
-                            -- print(k, i, A[k][i], j)
+                        if j ~= A[k][i] then
+                            print(k, i, A[k][i], j)
                             return false
                         end
                     end
                 end
             end
         else
-            -- print(k, v)
+            print(k, v)
             return false
         end
     end

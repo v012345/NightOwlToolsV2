@@ -89,9 +89,9 @@ if __name__ == '__main__':
                 if cell != "":
                     lua_key = head[j]
                     if is_number(cell):
-                        f.write(f'\t\t{lua_key}={cell},\n')
+                        f.write(f'\t\t{lua_key} = {cell},\n')
                     else:
-                        f.write(f'\t\t{lua_key}="{cell}",\n')
+                        f.write(f'\t\t{lua_key} = "{cell}",\n')
             f.write("\t},\n")
         f.write("}\n")
         f.write("return config\n")
