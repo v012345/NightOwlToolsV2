@@ -55,9 +55,10 @@ if shutil.which("coscmd") is None:
         [sys.executable, "-m", "pip", "install", "coscmd"])
 
 
-def download_file(file_info):
+def download_file(file_info, i, t):
+    print(f"下载 {i}/{t}", end="\r")
     subprocess.run([
-        "coscmd", "-c", opts.config, "download",
+        "coscmd", "-c", opts.config, "-s", "download",
         file_info.get("uri"), opts.client + "/" + file_info.get("key")
     ])
 
@@ -72,45 +73,21 @@ if __name__ == '__main__':
         with open(digital_res, 'r', encoding='utf-8') as f:
             db = json.load(f)
 
-    digital_res_local = opts.client + "/digital_res_local.json"
-    if os.path.exists(digital_res_local):
-        with open(digital_res_local, 'r', encoding='utf-8') as f:
-            db_local = json.load(f)
-    else:
-        db_local = {}
-
     to_download = []
-    for k, v in db.items():
-        info = db_local.get(k)
-        if not info:
-            to_download.append(v)
-        elif info.get("md5") != v.get("md5"):
+    total = len(db)
+    i = 1
+    for file, info in db.items():
+        print(f"正在检查文件 : {i}/{total}", end="\r")
+        f = opts.client + "/" + file
+        if not os.path.exists(f) or get_file_md5(f) != info["md5"]:
             to_download.append(info)
-
-    # for u in to_download:
-    #     subprocess.Popen(["coscmd", "-c", opts.config, "download", u.get("uri"), opts.client + "/" + u.get("key")
-    #                       ]).wait()
-
+        i += 1
+    print()
     with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
         # 提交所有任务到线程池
-        futures = [executor.submit(download_file, u) for u in to_download]
+        futures = [executor.submit(download_file, u, i, len(
+            to_download)) for i, u in enumerate(to_download)]
         # 等待所有任务完成
         concurrent.futures.wait(futures)
-
-    print(f"更新 {len(to_download)} 个文件")
-    dev = opts.client + "\\dev"
-    extensions = [".png", ".plist", ".mp3", ".jpg", ".ttf", ".map"]
-    # extensions = [".jpg", ".map", ]
-    local_all_file = []
-    for i in find_files(dev, extensions):
-        local_all_file.append(os.path.relpath(i, opts.client))
-    new_db = {}
-    for file in local_all_file:
-        new_db[file] = 1
-    to_del = new_db.keys() - db.keys()
-    for d in to_del:
-        os.remove(opts.client+"/"+d)
-    print(f"删除 {len(to_del)} 个文件")
-
-    with open(digital_res_local, "w", encoding="utf-8") as f:
-        json.dump(db, f, ensure_ascii=False, indent=4)
+    print(f"下载 {len(to_download)}/{len(to_download)}", end="\r")
+    print()
