@@ -11,22 +11,19 @@ local function is_A_contain_B(A, B)
                 if A[k][i] ~= j then
                     if not (j == "" and A[k][i] == nil) then
                         if tostring(j) ~= tostring(A[k][i]) then
-                            print(k, i, A[k][i], j)
+                            -- print(k, i, A[k][i], j)
                             return false
                         end
                     end
                 end
             end
         else
-            print(k, v)
+            -- print(k, v)
             return false
         end
     end
     return true
 end
-if is_A_contain_B(t1, t2) then
-    print(arg[1], arg[2], "相同")
-else
-    print(arg[1], "不包含", arg[2], "不同")
-
+if not is_A_contain_B(t1, t2) then
+    print(arg[1], "不包含", arg[2])
 end
