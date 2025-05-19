@@ -9,12 +9,12 @@ setlocal EnableDelayedExpansion
 
 set LUA_PARAM=return { ^
 exclude = { '.git', '.svn', '.vscode' }, ^
-ext = { '.xls' } ^
+ext = { '.png', '.plist', '.mp3', '.jpg', '.ttf', '.map' } ^
 }
-
-@REM "就是生成一个 文件名 + md5 的 csv"
-bin\lua.exe lua\getFilesOfDirWithConfig.lua "C:\work\牛马沉默\MirServer" "temp\common_002.txt" "!LUA_PARAM!"
-
+set from_dir=***************************
+bin\lua.exe lua\getFilesOfDirWithConfig.lua "%from_dir%" "temp\common_005.txt" "!LUA_PARAM!"
+bin\lua.exe lua\delFilesByTxt.lua "%from_dir%" "temp\common_005.txt"
+bin\lua.exe lua\remove_empty_dirs.lua "%from_dir%""
 endlocal
 popd
 
