@@ -3,3 +3,4 @@ Log.txt
 /*.db
 temp/**/*
 !temp/.gitkeep
+/Cmd
