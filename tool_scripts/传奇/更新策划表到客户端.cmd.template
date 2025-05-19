@@ -9,6 +9,9 @@ setlocal EnableDelayedExpansion
 if not exist temp\dev mkdir temp\dev
 if not exist temp\996head mkdir temp\996head
 
+set serverDir=C:\work\Legend\996M2_241107
+set clientDir=C:\work\Legend\996M2_client
+
 set t[1]=cfg_att_score
 set t[2]=cfg_bubble
 set t[3]=cfg_chat_drop
@@ -31,7 +34,7 @@ set count=16
 for /L %%i in (1,1,%count%) do (
     set t=!t[%%i]!
     bin\lua.exe lua\996genTableHeadForPy.lua "M2Data.!t!" "temp\996head\!t!.py" "!t!"
-    py -3 Python\996XlsToClientLua.py --xls "temp\996xls\!t!.xls" --lua "temp\dev\!t!.lua" --head "temp.996head.!t!" --name "!t!"
+    py -3 Python\996XlsToClientLua.py --xls "%serverDir%\Mir200\Envir\Data\!t!.xls" --lua "%clientDir%\dev\scripts\game_config\!t!.lua" --head "temp.996head.!t!" --name "!t!"
 )
 
 endlocal
