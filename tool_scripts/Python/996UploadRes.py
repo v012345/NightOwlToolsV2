@@ -78,8 +78,8 @@ if __name__ == '__main__':
         db = {}
 
     dev = opts.client + "\\dev"
-    # extensions = [".png", ".plist", ".mp3", ".jpg", ".ttf", ".map"]
-    extensions = [".lua", ]
+    extensions = [".png", ".plist", ".mp3", ".jpg", ".ttf", ".map"]
+    # extensions = [".lua", ]
     print("正在获取文件")
     files = find_files(dev, extensions)
 

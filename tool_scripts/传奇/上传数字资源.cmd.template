@@ -4,10 +4,12 @@ cls
 
 pushd "%~dp0"
 cd ..
-
 setlocal EnableDelayedExpansion
-set client_dir=*****************************
+
+set client_dir=C:\work\Legend\996M2_client
+
 py -3 Python\996UploadRes.py  --client "%client_dir%" --config "config\temp.config"
+
 endlocal
 popd
 pause

@@ -6,7 +6,7 @@ pushd "%~dp0"
 cd ..
 setlocal EnableDelayedExpansion
 
-set client_dir=************************
+set client_dir=C:\work\Legend\996M2_client
 
 py -3 Python\996UpdateRes.py  --client "%client_dir%" --config "config\BlackMoonBt5.config"
 
