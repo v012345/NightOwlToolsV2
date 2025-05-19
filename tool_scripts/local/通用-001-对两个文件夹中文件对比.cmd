@@ -8,11 +8,11 @@ cd ..
 setlocal EnableDelayedExpansion
 
 set LUA_PARAM=return { ^
-exclude = { '.git', '.svn', '.vscode' } ^
+exclude = { '.git', '.svn', '.vscode', 'dev' } ^
 }
 
-set root1="C:\work\Legend\dev"
-set root2="C:\work\Legend\db"
+set root1="C:\work\牛马沉默\客户端"
+set root2="C:\Users\Meteor\Desktop\client"
 
 @REM "就是生成一个 文件名 + md5 的 csv"
 bin\lua.exe lua\genMd5OfDir.lua %root1% "temp\common_001_1.csv" "!LUA_PARAM!"

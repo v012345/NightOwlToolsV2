@@ -74,16 +74,17 @@ if __name__ == '__main__':
     head = cfg["head"]
     key = cfg["key"]
     key_index = cfg["key_index"]
-    if key_index < 0:
-        raise TypeError("invailed key_index")
 
     with open(opts.lua, 'w', encoding='utf-8') as f:
         f.write("local config = { \n")
-        for row in xls:
-            if is_number(row[key_index]):
-                f.write(f"\t[{row[key_index]}] = {{ \n")
+        for i, row in enumerate(xls):
+            if key_index < 0:
+                f.write(f"\t[{i+1}] = {{ \n")
             else:
-                 f.write(f'\t["{row[key_index]}"] = {{ \n')
+                if is_number(row[key_index]):
+                    f.write(f"\t[{row[key_index]}] = {{ \n")
+                else:
+                    f.write(f'\t["{row[key_index]}"] = {{ \n')
             for j, cell in enumerate(row):
                 if cell != "":
                     lua_key = head[j]
@@ -94,4 +95,3 @@ if __name__ == '__main__':
             f.write("\t},\n")
         f.write("}\n")
         f.write("return config\n")
- 

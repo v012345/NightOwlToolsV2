@@ -29,7 +29,6 @@ if not exist temp\xls_origin mkdir temp\xls_origin
 
 @REM copy /Y  "%serverDir%\Mir200\Envir\Data\cfg_PulsDesc.xls"  "temp\xls_origin\cfg_PulsDesc.xls" >nul
 
-
 set t[1]=cfg_att_score
 set t[2]=cfg_bubble
 set t[3]=cfg_chat_drop
@@ -48,46 +47,29 @@ set t[15]=cfg_buff
 set t[16]=cfg_PulsDesc
 set count=16
 
-@REM if not exist temp\996head mkdir temp\996head
-@REM if not exist temp\server mkdir temp\server
-@REM for /L %%i in (1,1,%count%) do (
-@REM     set t=!t[%%i]!
-@REM     bin\lua.exe lua\996genTableHeadForPy.lua "M2Data.!t!" "temp\996head\!t!.py" "!t!"
-@REM     py -3 Python\996XlsAllDataToLua.py --xls "temp\xls_origin\!t!.xls" --lua "temp\server\!t!.lua"
-@REM )
+if not exist temp\996head mkdir temp\996head
+if not exist temp\server mkdir temp\server
+for /L %%i in (1,1,%count%) do (
+  set t=!t[%%i]!
+  bin\lua.exe lua\996genTableHeadForPy.lua "M2Data.!t!" "temp\996head\!t!.py" "!t!"
+  py -3 Python\996XlsAllDataToLua.py --xls "temp\xls_origin\!t!.xls" --lua "temp\server\!t!.lua"
+)
 
 @REM bin\lua.exe lua\copyFilesToWhere.lua "%clientDir%\dev\scripts\game_config" "temp\lua_origin"
 
+for /L %%i in (1,1,%count%) do (
+  set t=!t[%%i]!
+  bin\lua.exe lua\996MergeLuaTable.lua "temp.server.!t!" "temp.lua_origin.!t!" "M2Data.!t!" "!t!" "temp\merged\!t!.py"
+)
 
-@REM @REM 这里保留这个写法, 以后可能会有用
-@REM set mergeTable=return {^
-@REM 'cfg_att_score', ^
-@REM 'cfg_bubble', ^
-@REM 'cfg_chat_drop', ^
-@REM 'cfg_custpro_caption', ^
-@REM 'cfg_mapdesc', ^
-@REM 'cfg_redpoint', ^
-@REM 'cfg_sound', ^
-@REM 'cfg_magicinfo', ^
-@REM 'cfg_skill_present', ^
-@REM 'cfg_auction_type', ^
-@REM 'cfg_damage_number', ^
-@REM 'cfg_setup', ^
-@REM 'cfg_game_data', ^
-@REM 'cfg_model_info', ^
-@REM 'cfg_buff', ^
-@REM 'cfg_PulsDesc', ^
-@REM }
-@REM bin\lua.exe lua\996MergeLuaTable.lua "temp.server." "temp.lua_origin." "!mergeTable!" "temp\merged"
 echo "请先处理 temp\merged 下的 py 文件, 一般是删除多余注释"
 @REM pause
 if exist temp\996xls rd /S /Q temp\996xls
 mkdir temp\996xls
 for /L %%i in (1,1,%count%) do (
-    set t=!t[%%i]!
-    py -3 Python\996PyListsToXls.py --mod "temp.merged.!t!" --to "temp\996xls\!t!.xls" --name "!t!"
+  set t=!t[%%i]!
+  py -3 Python\996PyListsToXls.py --mod "temp.merged.!t!" --to "temp\996xls\!t!.xls" --name "!t!"
 )
-
 
 endlocal
 popd
