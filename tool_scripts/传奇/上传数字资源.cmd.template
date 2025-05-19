@@ -6,8 +6,8 @@ pushd "%~dp0"
 cd ..
 
 setlocal EnableDelayedExpansion
-set client_dir=C:\Users\Meteor\Desktop\client
-py -3 Python\996UploadRes.py  --client "C:\Users\Meteor\Desktop\client" --config "config\BlackMoonBt5.config"
+set client_dir=*****************************
+py -3 Python\996UploadRes.py  --client "%client_dir%" --config "config\temp.config"
 endlocal
 popd
 pause
