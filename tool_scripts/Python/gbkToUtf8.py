@@ -9,8 +9,8 @@ parser.add_option("--txt", action="store",
 (opts, args) = parser.parse_args()
 
 
-def convert_gb2312_to_utf8(src_path, dst_path):
-    with open(src_path, 'r', encoding='gb2312', errors='ignore') as f_in:
+def convert_gbk_to_utf8(src_path, dst_path):
+    with open(src_path, 'r', encoding='gbk', errors='ignore') as f_in:
         content = f_in.read()
 
     with open(dst_path, 'w', encoding='utf-8') as f_out:
@@ -24,11 +24,11 @@ try:
         need_deal = [line.strip()
                      for line in f if line.strip()]  # 去掉空行和换行
 except ValueError:
-    with open(opts.txt, 'r', encoding='gb2312') as f:
+    with open(opts.txt, 'r', encoding='gbk') as f:
         need_deal = [line.strip()
                      for line in f if line.strip()]  # 去掉空行和换行
 
 
 # 示例用法
 for i in need_deal:
-    convert_gb2312_to_utf8(opts.root + i, opts.root + i)
+    convert_gbk_to_utf8(opts.root + i, opts.root + i)

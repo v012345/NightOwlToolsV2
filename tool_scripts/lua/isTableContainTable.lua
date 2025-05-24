@@ -4,26 +4,32 @@ require "lua.Common"
 
 local t1 = require(arg[1])
 local t2 = require(arg[2])
+local output_to = arg[3]
+local file = io.open(output_to, "w") or error("can't open " .. output_to)
+file:write()
+
+local del = true
 local function is_A_contain_B(A, B)
     for k, v in pairs(B) do
         if A[k] then
-            for i, j in pairs(v) do
-                if A[k][i] ~= j then
-                    if not (j == "" and A[k][i] == nil) then
-                        if j ~= A[k][i] then
-                            print(k, i, A[k][i], j)
-                            return false
-                        end
-                    end
+            if type(v) == "table" and type(A[k]) == "table" then
+                is_A_contain_B(A[k], v)
+            else
+                if A[k] ~= v then
+                    file:write(arg[2], "   diff   ", k, "  ", A[k], " ", v, "\n")
+                    del = false
                 end
             end
         else
-            print(k, v)
-            return false
+            file:write(arg[2], "   has   ", k, " -> ", v, "\n")
+            del = false
         end
     end
-    return true
 end
-if not is_A_contain_B(t1, t2) then
-    print(arg[1], "不包含", arg[2])
+
+is_A_contain_B(t1, t2)
+
+file:close()
+if del then
+    os.remove(output_to)
 end

@@ -14,5 +14,6 @@ copy /Y "通用\获取文件夹下文件的大小.cmd.template"  "cmd\通用-获
 copy /Y "通用\对比 lua 表是否相同.cmd.template"  "cmd\通用-对比 lua 表是否相同.cmd"
 copy /Y "传奇\提取传奇官方 lua 文件.cmd.template"  "cmd\传奇-提取传奇官方 lua 文件.cmd"
 copy /Y "通用\获得文件夹下的某类文件.cmd.template"  "cmd\通用-获得文件夹下的某类文件.cmd"
+copy /Y "通用\对两个文件夹中文件对比.cmd.template"  "cmd\通用-对两个文件夹中文件对比.cmd"
 
 endlocal

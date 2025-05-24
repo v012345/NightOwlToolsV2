@@ -5,6 +5,18 @@ local sha = require "extensions.pure_lua_SHA.sha2"
 
 Common = Common or {}
 
+function Common.StrictTointeger(s)
+    if type(s) ~= "string" then
+        return nil
+    end
+    -- 只匹配不带符号的十进制整数
+    if s:match("^%d+$") then
+        return tonumber(s)
+    else
+        return nil
+    end
+end
+
 function Common.CopyDirStructure(from, to, exclude)
     for entry in lfs.dir(from) do
         if entry ~= "." and entry ~= ".." then
