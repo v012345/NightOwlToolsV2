@@ -1,0 +1,24 @@
+@echo off
+chcp 65001 >nul
+cls
+
+pushd "%~dp0"
+cd ..
+
+setlocal EnableDelayedExpansion
+
+set LUA_PARAM=return { ^
+exclude = { '.git', '.svn', '.vscode' }, ^
+ext = { '.lua','.txt' } ^
+}
+set from_dir=temp\server_cfgcsv
+set to_dir=temp\server_cfgcsv_utf8
+if not exist %to_dir% mkdir %to_dir%
+@REM 有点小bug gb2313ToUtf8 读 common_006.txt 时, common_006.txt 的编码不知道是什么
+bin\lua.exe lua\getFilesOfDirWithConfig.lua "%from_dir%" "temp\common_006.txt" "!LUA_PARAM!"
+py -3 Python\gbkToUtf8.py --root "%from_dir%" --to "%to_dir%" --txt "temp\common_006.txt"
+
+endlocal
+popd
+
+pause
