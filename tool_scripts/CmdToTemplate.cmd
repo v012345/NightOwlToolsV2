@@ -12,4 +12,6 @@ if exist "cmd\传奇-提取传奇官方 lua 文件.cmd" copy /Y "cmd\传奇-提�
 if exist "cmd\通用-删除指定类型的文件.cmd" copy /Y "cmd\通用-删除指定类型的文件.cmd" "通用\删除指定类型的文件.cmd.template"
 if exist "cmd\通用-获取文件夹下文件的大小.cmd" copy /Y "cmd\通用-获取文件夹下文件的大小.cmd" "通用\获取文件夹下文件的大小.cmd.template"
 if exist "cmd\通用-对比 lua 表是否相同.cmd" copy /Y "cmd\通用-对比 lua 表是否相同.cmd" "通用\获对比 lua 表是否相同.cmd.template"
+if exist "cmd\获得文件夹下的某类文件.cmd" copy /Y "cmd\通用-获得文件夹下的某类文件.cmd" "通用\获得文件夹下的某类文件.cmd.template"
+if exist "cmd\通用- GB2313 转为 UTF-8.cmd" copy /Y "cmd\通用- GB2313 转为 UTF-8.cmd" "通用\GB2313 转为 UTF-8.cmd.template"
 endlocal

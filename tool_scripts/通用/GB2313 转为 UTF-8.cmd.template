@@ -1,0 +1,25 @@
+@echo off
+chcp 65001 >nul
+cls
+
+pushd "%~dp0"
+cd ..
+
+setlocal EnableDelayedExpansion
+
+set LUA_PARAM=return { ^
+exclude = { '.git', '.svn', '.vscode' }, ^
+ext = { '.lua' } ^
+}
+set from_dir=temp\common_002
+bin\lua.exe lua\getFilesOfDirWithConfig.lua "%from_dir%" "temp\common_006.txt" "!LUA_PARAM!"
+py -3 Python\gb2313ToUtf8.py --root "%from_dir%" --txt "temp\common_006.txt"
+@REM bin\lua.exe lua\copyDirStructWithConfig.lua "%from_dir%" "temp\common_002" "!LUA_PARAM!"
+@REM bin\lua.exe lua\getFilesOfDirWithConfig.lua "%from_dir%" "temp\common_002.txt" "!LUA_PARAM!"
+@REM bin\lua.exe lua\copyFileByTxt.lua "%from_dir%" "temp\common_002" "temp\common_002.txt"
+@REM bin\lua.exe lua\remove_empty_dirs.lua "temp\common_002"
+
+endlocal
+popd
+
+pause
