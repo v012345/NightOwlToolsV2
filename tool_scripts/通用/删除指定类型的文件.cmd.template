@@ -11,7 +11,7 @@ set LUA_PARAM=return { ^
 exclude = { '.git', '.svn', '.vscode' }, ^
 ext = { '.png', '.plist', '.mp3', '.jpg', '.ttf', '.map' } ^
 }
-set from_dir=***************************
+set from_dir=C:\work\Legend\996M2_client
 bin\lua.exe lua\getFilesOfDirWithConfig.lua "%from_dir%" "temp\common_005.txt" "!LUA_PARAM!"
 bin\lua.exe lua\delFilesByTxt.lua "%from_dir%" "temp\common_005.txt"
 bin\lua.exe lua\remove_empty_dirs.lua "%from_dir%""

@@ -25,7 +25,7 @@ local total = #x
 local y = {}
 for i, v in ipairs(x) do
     io.write(string.format("正在过滤文件 %s/%s\r", i, total))
-    if ext[v:match("^.+(%..+)$"):lower()] then
+    if ext[(v:match("^.+(%..+)$") or ""):lower()] then
         y[#y + 1] = string.gsub(v, from, "", 1)
     end
 end

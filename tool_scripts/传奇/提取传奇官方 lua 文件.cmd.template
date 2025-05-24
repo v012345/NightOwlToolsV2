@@ -6,17 +6,19 @@ pushd "%~dp0"
 cd ..
 
 setlocal EnableDelayedExpansion
-
+set client_dir=C:\work\Legend\996M2_client
 set LUA_PARAM=return { ^
 exclude = { '.git', '.svn', '.vscode', 'dev', 'no_run' } , ^
 ext = { '.lua' }, ^
 }
-bin\lua.exe lua\copyDirStructWithConfig.lua "C:\work\Legend\client" "temp\no_run" !LUA_PARAM!
-bin\lua.exe lua\getFilesOfDirWithConfig.lua "C:\work\Legend\client" "temp\996lua.txt" !LUA_PARAM!
-bin\lua.exe lua\copyFileByTxt.lua "C:\work\Legend\client" "temp\no_run" "temp\996lua.txt"
+bin\lua.exe lua\copyDirStructWithConfig.lua "%client_dir%" "temp\no_run" !LUA_PARAM!
+bin\lua.exe lua\getFilesOfDirWithConfig.lua "%client_dir%" "temp\996lua.txt" !LUA_PARAM!
+bin\lua.exe lua\copyFileByTxt.lua "%client_dir%" "temp\no_run" "temp\996lua.txt"
 bin\lua.exe lua\remove_empty_dirs.lua "temp\no_run"
 bin\lua.exe lua\genMainLuaFor996.lua "temp\996lua.txt" "temp\main.lua"
 
+xcopy  "temp\no_run" "%client_dir%\mod_launcher\stab" /E /I /Y
+xcopy  "temp\main.lua" "%client_dir%\mod_launcher\stab\scripts\main.lua" /Y
 @REM "之后把 no_run 复制到 C:\work\Legend\client 和 C:\work\Legend\client\mod_launcher\stab 下"
 @REM "把 temp\main.lua 复制到 C:\work\Legend\client\mod_launcher\stab\scripts 覆盖原文件"
 endlocal
