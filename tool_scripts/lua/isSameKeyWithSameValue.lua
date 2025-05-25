@@ -9,26 +9,22 @@ local file = io.open(output_to, "w") or error("can't open " .. output_to)
 file:write()
 
 local del = true
-local function is_A_contain_B(A, B, key)
+local function isSameKeyWithSameValue(A, B)
     for k, v in pairs(B) do
-        local key_c = key .. "->" .. k
         if A[k] then
             if type(v) == "table" and type(A[k]) == "table" then
-                is_A_contain_B(A[k], v, key_c)
+                isSameKeyWithSameValue(A[k], v)
             else
                 if A[k] ~= v then
-                    file:write(arg[2], "   diff   ", key_c, "  ", tostring(A[k]), " ", tostring(v), "\n")
+                    file:write(arg[1], "   diff   ", k, "  ", A[k], " ", v, "\n")
                     del = false
                 end
             end
-        else
-            file:write(arg[2], "   has   ", key_c, " -> ", tostring(v), "\n")
-            del = false
         end
     end
 end
 
-is_A_contain_B(t1, t2, "")
+isSameKeyWithSameValue(t1, t2)
 
 file:close()
 if del then

@@ -6,6 +6,10 @@ from optparse import OptionParser
 def is_number(s):
     if "_" in s:
         return False
+    if "+" in s:
+        return False
+    if "-" in s:
+        return False
     try:
         float(s)  # 尝试转为浮点数
         return True
@@ -39,48 +43,115 @@ def convert_to_lua_data(input_str):
         return f'"{input_str}"'
 
 
-def convert_to_lua(input_str):
+def get_d(input_str):
     if "^" in input_str:
-        d = 2
+        return 2
     elif "|" in input_str:
-        d = 1
+        return 1
     else:
-        return f'"{input_str}",'
-    if d == 1:
-        items = input_str.split('|')
-        lua_lines = ["{\n"]
-        for i, item in enumerate(items, start=1):
-            line = f'\t\t\t[{i}] = {convert_to_lua_data(item)},\n'
-            lua_lines.append(line)
-        lua_lines.append("\t\t},")
-        return ''.join(lua_lines)
-    elif d == 2:
-        items = input_str.split('|')
-        lua_lines = ["{\n"]
-        for i, item in enumerate(items, start=1):
-            if "^" in item:
-                line = f'\t\t\t[{i}] = {{\n'
-                lua_lines.append(line)
-                sub_items = item.split("^")
-                for j, sub_item in enumerate(sub_items, start=1):
-                    line = f'\t\t\t\t[{j}] = {convert_to_lua_data(sub_item)},\n'
-                    lua_lines.append(line)
-                lua_lines.append("\t\t\t},\n")
-            else:
+        return 0
+
+
+def convert_to_lua(input_str, d, dep, name, key_name):
+    if name == "cfg_LuckyEvent_BoxData" and key_name == "BuffId":
+        if input_str == "nil":
+            dep == True
+        else:
+            dep == False
+            d = 1
+
+    if dep:
+        if "^" in input_str:
+            d = 2
+        elif "|" in input_str:
+            d = 1
+        else:
+            return f'{convert_to_lua_data(input_str)},'
+        if d == 1:
+            items = input_str.split('|')
+            lua_lines = ["{\n"]
+            for i, item in enumerate(items, start=1):
                 line = f'\t\t\t[{i}] = {convert_to_lua_data(item)},\n'
                 lua_lines.append(line)
-        lua_lines.append("\t\t},")
-        return ''.join(lua_lines)
+            lua_lines.append("\t\t},")
+            return ''.join(lua_lines)
+        elif d == 2:
+            items = input_str.split('|')
+            lua_lines = ["{\n"]
+            for i, item in enumerate(items, start=1):
+                if "^" in item:
+                    line = f'\t\t\t[{i}] = {{\n'
+                    lua_lines.append(line)
+                    sub_items = item.split("^")
+                    for j, sub_item in enumerate(sub_items, start=1):
+                        line = f'\t\t\t\t[{j}] = {convert_to_lua_data(sub_item)},\n'
+                        lua_lines.append(line)
+                    lua_lines.append("\t\t\t},\n")
+                else:
+                    line = f'\t\t\t[{i}] = {convert_to_lua_data(item)},\n'
+                    lua_lines.append(line)
+            lua_lines.append("\t\t},")
+            return ''.join(lua_lines)
+    else:
+        if d == 0:
+            return f'{convert_to_lua_data(input_str)},'
+        elif d == 1:
+            items = input_str.split('|')
+            lua_lines = ["{\n"]
+            for i, item in enumerate(items, start=1):
+                line = f'\t\t\t[{i}] = {convert_to_lua_data(item)},\n'
+                lua_lines.append(line)
+            lua_lines.append("\t\t},")
+            return ''.join(lua_lines)
+        elif d == 2:
+            items = input_str.split('|')
+            lua_lines = ["{\n"]
+            for i, item in enumerate(items, start=1):
+                if "^" in item:
+                    line = f'\t\t\t[{i}] = {{\n'
+                    lua_lines.append(line)
+                    sub_items = item.split("^")
+                    for j, sub_item in enumerate(sub_items, start=1):
+                        line = f'\t\t\t\t[{j}] = {convert_to_lua_data(sub_item)},\n'
+                        lua_lines.append(line)
+                    lua_lines.append("\t\t\t},\n")
+                else:
+                    line = f'\t\t\t[{i}] = {convert_to_lua_data(item)},\n'
+                    lua_lines.append(line)
+            lua_lines.append("\t\t},")
+            return ''.join(lua_lines)
+        else:
+            ValueError("不支持")
 
+
+special = {
+    "cfg_CuiPanGuan": True,
+    # "cfg_LuckyEvent_BoxData": True,
+    "cfg_renwu_target": True,
+    "cfg_renwu_touch": True,
+    "cfg_renwu": True,
+    "cfg_SetZhuangBan": True,
+    "cfg_Task": True,
+    "cfg_TitelLookData": True,
+    "cfg_TitleNumData": True,
+    "cfg_WuXingLingTi": True,
+    "cfg_YanWangDaDian": True,
+    "cfg_YiYeYiPuTi": True,
+    "cfg_YouXiGongLve": True,
+    "cfg_ZhuangBan": True,
+    "cfg_ZhuangBeiBuff": True,
+}
 
 if __name__ == '__main__':
     workbook = xlrd.open_workbook(opts.xls)
     sheet = workbook.sheet_by_index(0)
     num_rows = sheet.nrows
     num_cols = sheet.ncols
+    d = []
     head = []
     for col in range(num_cols):
         head.append(sheet.cell_value(0, col))
+        d.append(0)
 
     xls = []
     for row in range(1, num_rows):
@@ -93,6 +164,9 @@ if __name__ == '__main__':
             else:
                 value = str(cell.value)   # 直接输出文本
             value = escapeForLua(value)
+            dimensions = get_d(value)
+            if dimensions > d[col]:
+                d[col] = dimensions
             row_data.append(value)
         xls.append(row_data)
 
@@ -106,10 +180,8 @@ if __name__ == '__main__':
             for j, cell in enumerate(row):
                 lua_key = head[j]
                 if cell != "":
-                    if is_number(cell):
-                        f.write(f'\t\t{lua_key} = {cell},\n')
-                    else:
-                        f.write(f'\t\t{lua_key} = {convert_to_lua(cell)}\n')
+                    f.write(
+                        f'\t\t{lua_key} = {convert_to_lua(cell, d[j], not special.get(opts.name), opts.name, row[0])}\n')
             f.write("\t},\n")
         f.write("}\n")
         f.write("return config\n")

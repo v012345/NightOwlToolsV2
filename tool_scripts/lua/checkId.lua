@@ -10,7 +10,7 @@ for k, t in pairs(A) do
             maybe_id[k] = true
         end
     else
-        print("奇怪的表 " .. A)
+        print("奇怪的表 " .. arg[1])
         return
     end
 end
@@ -21,6 +21,12 @@ for key, t in pairs(A) do
             maybe_id[k] = false
         end
     end
+    for k, v in pairs(maybe_id) do
+        if not t[k] then
+            maybe_id[k] = false
+        end
+    end
+
 end
 
 for k, v in pairs(maybe_id) do

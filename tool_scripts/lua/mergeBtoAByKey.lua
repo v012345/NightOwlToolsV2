@@ -3,11 +3,6 @@ require "lua.Common"
 local A = require(arg[1])
 local B = require(arg[2])
 local to = arg[3]
-for k, v in pairs(B) do
-    if not A[k] then
-        A[k] = v
-    end
-end
 
 local function mergeBToABykey(A, B)
     for k, v in pairs(B) do
@@ -26,14 +21,13 @@ mergeBToABykey(A, B)
 local file = io.open(to, "w") or error("can't open " .. to)
 
 file:write("local config = {\n")
-print(to)
 local function dump(t, f, i)
     for k, v in pairs(t) do
         if type(v) == "table" then
             if type(k) == "number" then
                 f:write(string.rep("\t", i), string.format("[%s] = {\n", k))
             else
-                if i == 1 then
+                if i == 1 then -- 第一层的键是 ["key"] = { 这样的
                     f:write(string.rep("\t", i), string.format("[\"%s\"] = {\n", k))
                 else
                     f:write(string.rep("\t", i), string.format("%s = {\n", k))
@@ -46,7 +40,9 @@ local function dump(t, f, i)
             if type(v) == "number" then
                 value = v
             else
-                value = Common.StrictTointeger(v) and tonumber(v) or '\"' .. v .. '\"'
+                value = string.gsub(value, "\\", "\\\\")
+                value = string.gsub(value, "\"", "\\\"")
+                value = '\"' .. v .. '\"'
             end
             value = string.gsub(value, "\n", "\\n")
             if type(k) == "number" then

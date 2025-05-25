@@ -10,8 +10,15 @@ local specail = {
 }
 
 local function cell_to_string(t)
+    if type(t) == "number" then
+        return t
+    end
     if type(t) ~= "table" then
-        return tostring(t)
+        local s = tostring(t)
+        s = string.gsub(s, "\\", "\\\\")
+        s = string.gsub(s, "\"", "\\\"")
+        s = string.gsub(s, "\n", "\\n")
+        return '"' .. s .. '"'
     end
     local s = ""
     for i, v in ipairs(t) do
@@ -36,7 +43,10 @@ local function cell_to_string(t)
             end
         end
     end
-    return s
+    s = string.gsub(s, "\\", "\\\\")
+    s = string.gsub(s, "\"", "\\\"")
+    s = string.gsub(s, "\n", "\\n")
+    return '"' .. s .. '"'
 end
 
 local function dump_to_py(lua_table, key, table_head, to_where, name)
@@ -62,13 +72,13 @@ local function dump_to_py(lua_table, key, table_head, to_where, name)
     for k, v in pairs(lua_table) do
         file:write("    [")
         if has_key then
-            file:write(string.format('"%s",', v[key]))
+            file:write(string.format('%s,', cell_to_string(v[key])))
         else
-            file:write(string.format('"%s",', k))
+            file:write(string.format('%s,', cell_to_string(k)))
         end
         for i, head in ipairs(new_head) do
             if v[head] then
-                file:write(string.format('"%s",', string.gsub(cell_to_string(v[head]), "\n", "\\n")))
+                file:write(string.format('%s,', cell_to_string(v[head])))
             else
                 file:write('"",')
             end
