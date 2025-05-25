@@ -55,10 +55,22 @@ def get_d(input_str):
 def convert_to_lua(input_str, d, dep, name, key_name):
     if name == "cfg_LuckyEvent_BoxData" and key_name == "BuffId":
         if input_str == "nil":
-            dep == True
+            dep = True
         else:
-            dep == False
+            dep = False
             d = 1
+    if name == "cfg_renwu_target" and key_name == "TouchType":
+        dep = False
+        d = 1
+    if name == "cfg_renwu_target" and key_name == "Param":
+        dep = False
+        d = 1
+    if name == "cfg_renwu_touch" and key_name == "Param":
+        dep = False
+        d = 1
+    if name == "cfg_renwu" and key_name == "Target":
+        dep = False
+        d = 1
 
     if dep:
         if "^" in input_str:
@@ -173,7 +185,7 @@ if __name__ == '__main__':
     with open(opts.lua, 'w', encoding=opts.encoding) as f:
         f.write("local config = { \n")
         for i, row in enumerate(xls):
-            if is_number(row[0]):
+            if is_number(row[0]) and opts.name != "cfg_ZhuangBeiBuff":
                 f.write(f"\t[{row[0]}] = {{ \n")
             else:
                 f.write(f'\t["{row[0]}"] = {{ \n')
@@ -181,7 +193,7 @@ if __name__ == '__main__':
                 lua_key = head[j]
                 if cell != "":
                     f.write(
-                        f'\t\t{lua_key} = {convert_to_lua(cell, d[j], not special.get(opts.name), opts.name, row[0])}\n')
+                        f'\t\t{lua_key} = {convert_to_lua(cell, d[j], not special.get(opts.name), opts.name, lua_key)}\n')
             f.write("\t},\n")
         f.write("}\n")
         f.write("return config\n")
