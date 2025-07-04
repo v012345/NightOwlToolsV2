@@ -18,34 +18,52 @@ function Common.StrictTointeger(s)
 end
 
 function Common.CopyDirStructure(from, to, exclude)
-    for entry in lfs.dir(from) do
-        if entry ~= "." and entry ~= ".." then
-            local path = from .. "/" .. entry
-            local attri = lfs.attributes(path)
-            if attri.mode == "directory" and not exclude[entry] then
-                local target = to .. "/" .. entry
-                if not lfs.attributes(target) then
-                    lfs.mkdir(target)
+    local i = 0
+    local function copyDirStructure(from, to, exclude)
+        for entry in lfs.dir(from) do
+            if entry ~= "." and entry ~= ".." then
+                local path = from .. "/" .. entry
+                local attri = lfs.attributes(path)
+                if attri.mode == "directory" and not exclude[entry] then
+                    local target = to .. "/" .. entry
+                    if not lfs.attributes(target) then
+                        lfs.mkdir(target)
+                    end
+                    i = i + 1
+                    io.write(string.format("正在复制目录结构 : %s\r", i))
+                    copyDirStructure(path, target, exclude)
                 end
-                Common.CopyDirStructure(path, target, exclude)
             end
         end
+    end
+    copyDirStructure(from, to, exclude)
+    if i > 0 then
+        print()
     end
 end
 
 function Common.GetAllFilesOfDirectory(directory, exclude, result)
-    for entry in lfs.dir(directory) do
-        if entry ~= "." and entry ~= ".." then
-            local path = directory .. "/" .. entry
-            local attri = lfs.attributes(path)
-            if attri.mode == "file" then
-                result[#result + 1] = path
-            else
-                if not exclude[entry] then
-                    Common.GetAllFilesOfDirectory(path, exclude, result)
+    local i = 0
+    local function getAllFilesOfDirectory(directory, exclude, result)
+        for entry in lfs.dir(directory) do
+            if entry ~= "." and entry ~= ".." then
+                local path = directory .. "/" .. entry
+                local attri = lfs.attributes(path)
+                if attri.mode == "file" then
+                    result[#result + 1] = path
+                    i = i + 1
+                    io.write(string.format("正在获取 %s 中的文件 : %s\r", directory , i))
+                else
+                    if not exclude[entry] then
+                        getAllFilesOfDirectory(path, exclude, result)
+                    end
                 end
             end
         end
+    end
+    getAllFilesOfDirectory(directory, exclude, result)
+    if i > 0 then
+        print()
     end
 end
 
