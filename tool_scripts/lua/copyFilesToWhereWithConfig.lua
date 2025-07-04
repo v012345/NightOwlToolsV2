@@ -13,7 +13,10 @@ if not func then
     return
 end
 local config = func()
-local excludeDir = config.exclude
+local excludeDir = {}
+for k, v in pairs(config.exclude) do
+    excludeDir[v] = true
+end
 Common.GetAllFilesOfDirectory(from, excludeDir, x)
 
 local total = #x
