@@ -1,0 +1,5 @@
+**/*
+!.gitignore
+!Templates
+!Templates/**/*
+!通用.md
