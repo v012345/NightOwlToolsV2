@@ -132,6 +132,10 @@ function LuaFileDB.Create(bdName, force)
     Create(bdName, force)
 end
 
+function LuaFileDB.CreateIfNotExist(bdName)
+    Create(bdName)
+end
+
 function LuaFileDB.Open(bdName)
     if not LuaFileDB.Exist(bdName) then
         return false, "Not Exist"

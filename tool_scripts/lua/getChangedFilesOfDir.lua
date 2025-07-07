@@ -1,37 +1,45 @@
 require "lua.Common"
 require "lua.LuaFileDbSystem"
+
 local from = arg[1]
-local to = arg[2]
-
-local lines = {}
-local file = io.open(txt, "r") -- 以只读模式打开文件
-if file then
-    for line in file:lines() do
-        table.insert(lines, line)
+local output_to = arg[2]
+local configStr = arg[3]
+local func, err = load(configStr, "configStr")
+if not func then
+    print("Error loading config: ", err)
+    return
+end
+local config = func()
+local excludeDir = {}
+for k, v in ipairs(config.exclude) do
+    excludeDir[v] = true
+end
+local x = {}
+print(string.format("正在获取 %s 下的全部文件", from))
+Common.GetAllFilesOfDirectory(from, excludeDir, x)
+LuaFileDB.CreateIfNotExist(from)
+local db = LuaFileDB.Open(from)
+local total = #x
+local y = {}
+for i, v in ipairs(x) do
+    io.write(string.format("正在检查文件状态 %s/%s\r", i, total))
+    local key = string.gsub(v, from, "", 1)
+    local fileInfo = db[key]
+    if not fileInfo then
+        y[#y + 1] = key
+    else
+        if fileInfo["modified_time"] ~= lfs.attributes(v, "modification") then
+            if Common.Checksum(v) ~= fileInfo["md5"] then
+                y[#y + 1] = key
+            end
+        end
     end
-    file:close()
-else
-    print("无法打开文件")
-end
--- print(#lines)
-local o = {}
-local total = #lines
-for i, v in ipairs(lines) do
-    io.write(string.format("正在计算文件大小 : %s/%s\r", i, total))
-    local from_file = from .. v
-    local f = lfs.attributes(from_file)
-    o[#o + 1] = {
-        name = v,
-        size = f.size >> 20
-    }
-end
-table.sort(o, function(a, b)
-    return a.size > b.size
-end)
 
-local file = io.open(to, "w") or error("can't open " .. to)
-for i, v in ipairs(o) do
-    file:write(v.name, ", ", v.size, "M\n")
 end
-file:close()
 print()
+print("需处理文件数", #y)
+local file = io.open(output_to, "w") or error("can't open " .. output_to)
+file:write(table.concat(y, "\n"))
+file:close()
+print(string.format("已经输出到 %s", output_to))
+
