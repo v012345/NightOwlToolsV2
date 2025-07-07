@@ -23,7 +23,7 @@ for i, v in ipairs(lines) do
     io.write(string.format("正在同步文件状态 %s/%s\r", i, total))
     -- local key = string.gsub(v, from, "", 1)
     db[v] = {
-        modified_time = lfs.attributes(v, "modification"),
+        modified_time = lfs.attributes(from .. v, "modification"),
         md5 = Common.Checksum(from .. v)
     }
 end

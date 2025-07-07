@@ -44,7 +44,7 @@ end
 
 function Common.GetAllFilesOfDirectory(directory, exclude, result)
     local i = 0
-    local function getAllFilesOfDirectory(directory, exclude, result,root)
+    local function getAllFilesOfDirectory(directory, exclude, result, root)
         for entry in lfs.dir(directory) do
             if entry ~= "." and entry ~= ".." then
                 local path = directory .. "/" .. entry
@@ -52,16 +52,16 @@ function Common.GetAllFilesOfDirectory(directory, exclude, result)
                 if attri.mode == "file" then
                     result[#result + 1] = path
                     i = i + 1
-                    io.write(string.format("正在获取 %s 中的文件 : %s\r", root , i))
+                    io.write(string.format("正在获取 %s 中的文件 : %s\r", string.sub(root, 1, 90), i))
                 else
                     if not exclude[entry] then
-                        getAllFilesOfDirectory(path, exclude, result,root)
+                        getAllFilesOfDirectory(path, exclude, result, root)
                     end
                 end
             end
         end
     end
-    getAllFilesOfDirectory(directory, exclude, result,directory)
+    getAllFilesOfDirectory(directory, exclude, result, directory)
     if i > 0 then
         print()
     end

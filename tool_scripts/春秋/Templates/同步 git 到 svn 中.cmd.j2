@@ -7,8 +7,8 @@ cd..
 
 setlocal EnableDelayedExpansion
 
-set svn_path_ui={{svn_root}}\03_Code\unity3dProj\Project\Assets\Download\UI
 set git_path_ui={{git_root}}\03_Code\unity3dProj\Project\Assets\Download\UI
+set svn_path_ui={{svn_root}}\03_Code\unity3dProj\Project\Assets\Download\UI
 
 set LUA_PARAM=return { ^
 exclude = { '.git', '.svn', '.vscode', '.vs' }, ^
@@ -17,6 +17,13 @@ exclude = { '.git', '.svn', '.vscode', '.vs' }, ^
 bin\lua.exe lua\getChangedFilesOfDir.lua "%git_path_ui%" "temp\git_ui_changed.txt" "!LUA_PARAM!"
 bin\lua.exe lua\copyFileByTxt.lua "%git_path_ui%" "%svn_path_ui%" "temp\git_ui_changed.txt"
 bin\lua.exe lua\syncFileStatesOfDir.lua "%git_path_ui%" "temp\git_ui_changed.txt"
+
+set git_path_LogicNode={{git_root}}\03_Code\unity3dProj\Project\Assets\Download\xLuaLogic\LogicNode
+set svn_path_LogicNode={{svn_root}}\03_Code\unity3dProj\Project\Assets\Download\xLuaLogic\LogicNode
+
+bin\lua.exe lua\getChangedFilesOfDir.lua "%git_path_LogicNode%" "temp\git_luacode_changed.txt" "!LUA_PARAM!"
+bin\lua.exe lua\copyFileByTxt.lua "%git_path_LogicNode%" "%svn_path_LogicNode%" "temp\git_luacode_changed.txt"
+bin\lua.exe lua\syncFileStatesOfDir.lua "%git_path_LogicNode%" "temp\git_luacode_changed.txt"
 
 
 endlocal
