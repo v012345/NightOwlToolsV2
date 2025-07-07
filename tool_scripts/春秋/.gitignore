@@ -1,3 +1,6 @@
 **/*
 !.gitignore
 !config.ini
+!Templates
+!Templates/**/*
+!春秋.md

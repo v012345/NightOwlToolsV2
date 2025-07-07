@@ -1,0 +1,23 @@
+@echo off
+chcp 65001 > nul
+cls
+
+pushd "%~dp0"
+cd..
+
+setlocal EnableDelayedExpansion
+
+set root=C:\work\ChunQiuFengShenBT2
+set LUA_PARAM=return { ^
+    exclude = { '.git', '.svn', '.vscode', '.vs' }, ^
+    files = { ^
+        'UI_LoginMainCtrl.bytes', ^
+        }, ^
+    }
+
+bin\lua.exe lua\isSameOfSameName.lua "%root%" "temp\isSameOfSameName.txt" "!LUA_PARAM!"
+
+endlocal
+popd
+
+pause
