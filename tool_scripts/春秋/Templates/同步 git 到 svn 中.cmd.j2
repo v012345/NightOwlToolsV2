@@ -7,24 +7,34 @@ cd..
 
 setlocal EnableDelayedExpansion
 
-set git_path_ui={{git_root}}\03_Code\unity3dProj\Project\Assets\Download\UI
-set svn_path_ui={{svn_root}}\03_Code\unity3dProj\Project\Assets\Download\UI
-
 set LUA_PARAM=return { ^
 exclude = { '.git', '.svn', '.vscode', '.vs' }, ^
 }
 
+set git_path_ui={{git_root}}\03_Code\unity3dProj\Project\Assets\Download\UI
+set svn_path_ui={{svn_root}}\03_Code\unity3dProj\Project\Assets\Download\UI
 bin\lua.exe lua\getChangedFilesOfDir.lua "%git_path_ui%" "temp\git_ui_changed.txt" "!LUA_PARAM!"
 bin\lua.exe lua\copyFileByTxt.lua "%git_path_ui%" "%svn_path_ui%" "temp\git_ui_changed.txt"
 bin\lua.exe lua\syncFileStatesOfDir.lua "%git_path_ui%" "temp\git_ui_changed.txt"
 
 set git_path_LogicNode={{git_root}}\03_Code\unity3dProj\Project\Assets\Download\xLuaLogic\LogicNode
 set svn_path_LogicNode={{svn_root}}\03_Code\unity3dProj\Project\Assets\Download\xLuaLogic\LogicNode
-
 bin\lua.exe lua\getChangedFilesOfDir.lua "%git_path_LogicNode%" "temp\git_luacode_changed.txt" "!LUA_PARAM!"
 bin\lua.exe lua\copyFileByTxt.lua "%git_path_LogicNode%" "%svn_path_LogicNode%" "temp\git_luacode_changed.txt"
 bin\lua.exe lua\syncFileStatesOfDir.lua "%git_path_LogicNode%" "temp\git_luacode_changed.txt"
 
+set git_path_StreamingAssets={{git_root}}\03_Code\unity3dProj\Project\Assets\StreamingAssets
+set svn_path_StreamingAssets={{svn_root}}\03_Code\unity3dProj\Project\Assets\StreamingAssets
+bin\lua.exe lua\getChangedFilesOfDir.lua "%git_path_StreamingAssets%" "temp\git_path_StreamingAssets.txt" "!LUA_PARAM!"
+bin\lua.exe lua\copyFileByTxt.lua "%git_path_StreamingAssets%" "%svn_path_StreamingAssets%" "temp\git_path_StreamingAssets.txt"
+bin\lua.exe lua\syncFileStatesOfDir.lua "%git_path_StreamingAssets%" "temp\git_path_StreamingAssets.txt"
+
+
+set git_path_FGUI_assets={{git_root}}\02_Resources\FGUI\SengokuFGUI\assets
+set svn_path_FGUI_assets={{svn_root}}\02_Resources\FGUI\SengokuFGUI\assets
+bin\lua.exe lua\getChangedFilesOfDir.lua "%git_path_FGUI_assets%" "temp\git_path_FGUI_assets.txt" "!LUA_PARAM!"
+bin\lua.exe lua\copyFileByTxt.lua "%git_path_FGUI_assets%" "%svn_path_FGUI_assets%" "temp\git_path_FGUI_assets.txt"
+bin\lua.exe lua\syncFileStatesOfDir.lua "%git_path_FGUI_assets%" "temp\git_path_FGUI_assets.txt"
 
 endlocal
 popd
