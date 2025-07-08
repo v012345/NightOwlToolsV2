@@ -29,6 +29,13 @@ bin\lua.exe lua\getChangedFilesOfDir.lua "%git_path_StreamingAssets%" "temp\git_
 bin\lua.exe lua\copyFileByTxt.lua "%git_path_StreamingAssets%" "%svn_path_StreamingAssets%" "temp\git_path_StreamingAssets.txt"
 bin\lua.exe lua\syncFileStatesOfDir.lua "%git_path_StreamingAssets%" "temp\git_path_StreamingAssets.txt"
 
+
+set git_path_FGUI_assets={{git_root}}\02_Resources\FGUI\SengokuFGUI\assets
+set svn_path_FGUI_assets={{svn_root}}\02_Resources\FGUI\SengokuFGUI\assets
+bin\lua.exe lua\getChangedFilesOfDir.lua "%git_path_FGUI_assets%" "temp\git_path_FGUI_assets.txt" "!LUA_PARAM!"
+bin\lua.exe lua\copyFileByTxt.lua "%git_path_FGUI_assets%" "%svn_path_FGUI_assets%" "temp\git_path_FGUI_assets.txt"
+bin\lua.exe lua\syncFileStatesOfDir.lua "%git_path_FGUI_assets%" "temp\git_path_FGUI_assets.txt"
+
 endlocal
 popd
 
