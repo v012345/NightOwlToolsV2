@@ -13,7 +13,7 @@ set git_path={{git_root}}\01_Design\0_table\ch
 set LUA_PARAM=return { ^
 exclude = { '.git', '.svn', '.vscode', '.vs' }, ^
 }
-
+if not exist %git_path% mkdir %git_path%
 bin\lua.exe lua\copyDirStructWithConfig.lua "%svn_path%" "%git_path%" "!LUA_PARAM!"
 bin\lua.exe lua\copyFilesToWhereWithConfig.lua "%svn_path%" "%git_path%" "!LUA_PARAM!"
 

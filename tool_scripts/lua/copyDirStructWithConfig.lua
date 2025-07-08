@@ -16,5 +16,4 @@ local ext = config.ext
 lfs.mkdir(to)
 os.execute("chcp 65001 >nul")
 print(string.format("正在复制 %s 目录结构到 %s 中", from, to))
-print(configStr)
 Common.CopyDirStructure(from, to, excludeDir)
