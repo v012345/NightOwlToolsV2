@@ -6,8 +6,8 @@ pushd "%~dp0"
 cd ..
 
 setlocal EnableDelayedExpansion
-set Resources={{git_root}}\03_Code\trunk\project\Resources
-set ResourcesStation={{git_root}}\03_Code\trunk\project\ResourcesStation
+set Resources={{root}}\03_Code\trunk\project\Resources
+set ResourcesStation={{root}}\03_Code\trunk\project\ResourcesStation
 
 set LUA_PARAM=return { ^
 exclude = { '.git', '.svn', '.vscode', 'no_run', 'res_en', 'res_tw', 'res_vi', 'res_review' } , ^
