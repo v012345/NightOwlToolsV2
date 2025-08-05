@@ -13,8 +13,13 @@ for k, v in ipairs(config.exclude) do
     excludeDir[v] = true
 end
 local ext = {}
+local all = false
 for k, v in ipairs(config.ext) do
     ext[v] = true
+    if v == "*" then
+        all = true
+        break
+    end
 end
 
 local x = {}
@@ -25,7 +30,9 @@ local total = #x
 local y = {}
 for i, v in ipairs(x) do
     io.write(string.format("正在过滤文件 %s/%s\r", i, total))
-    if ext[(v:match("^.+(%..+)$") or ""):lower()] then
+    if all then
+        y[#y + 1] = string.gsub(v, from, "", 1)
+    elseif ext[(v:match("^.+(%..+)$") or ""):lower()] then
         y[#y + 1] = string.gsub(v, from, "", 1)
     end
 end

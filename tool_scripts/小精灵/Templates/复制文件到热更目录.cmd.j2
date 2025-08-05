@@ -11,11 +11,16 @@ set ResourcesStation={{root}}\03_Code\trunk\project\ResourcesStation
 
 set LUA_PARAM=return { ^
 exclude = { '.git', '.svn', '.vscode', 'no_run', 'res_en', 'res_tw', 'res_vi', 'res_review' } , ^
-ext = { '' }, ^
+ext = { '*' }, ^
 }
 
+
+
+bin\lua.exe lua\copyDirStructWithConfig.lua "%Resources%" "%ResourcesStation%" "!LUA_PARAM!"
 bin\lua.exe lua\getFilesOfDirWithConfig.lua "%Resources%" "temp\Resources.txt" "!LUA_PARAM!"
 bin\lua.exe lua\copyFileByTxt.lua "%Resources%" "%ResourcesStation%" "temp\Resources.txt"
+bin\lua.exe lua\remove_empty_dirs.lua "%ResourcesStation%"
+
 
 endlocal
 popd
