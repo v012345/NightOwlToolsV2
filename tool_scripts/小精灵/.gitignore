@@ -1,0 +1,6 @@
+**/*
+!.gitignore
+!config.ini
+!Templates
+!Templates/**/*
+!小精灵.md

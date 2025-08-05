@@ -1,0 +1,23 @@
+@echo off
+chcp 65001 >nul
+cls
+
+pushd "%~dp0"
+cd ..
+
+setlocal EnableDelayedExpansion
+set Resources={{git_root}}\03_Code\trunk\project\Resources
+set ResourcesStation={{git_root}}\03_Code\trunk\project\ResourcesStation
+
+set LUA_PARAM=return { ^
+exclude = { '.git', '.svn', '.vscode', 'no_run', 'res_en', 'res_tw', 'res_vi', 'res_review' } , ^
+ext = { '' }, ^
+}
+
+bin\lua.exe lua\getFilesOfDirWithConfig.lua "%Resources%" "temp\Resources.txt" "!LUA_PARAM!"
+bin\lua.exe lua\copyFileByTxt.lua "%Resources%" "%ResourcesStation%" "temp\Resources.txt"
+
+endlocal
+popd
+
+pause
