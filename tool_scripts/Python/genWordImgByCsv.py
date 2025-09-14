@@ -23,7 +23,7 @@ class Size:
 size = Size(140, 190)
 max_width = size.width - 20
 
-font = ImageFont.truetype("单词游戏/BIZ-UDGothicR.ttc", 25) # 字体 与 大小
+font = ImageFont.truetype("单词游戏/YUGOTHB.TTC", 24) # 字体 与 大小
 
 kana_index = 0
 image_path_index = 0
@@ -66,7 +66,7 @@ for row_num, row in enumerate(data):
         img_w = max(img_w, text_width)
         x = ( size.width - text_width) / 2
         img_h = (line_height + 5) * (i + 1)  # 行间距
-    img_h = img_h - 5
+    img_h = img_h - 2
 
     # 正式生成图片
     img = Image.new("RGBA", (img_w, img_h), (255, 255, 255, 0))
