@@ -23,7 +23,7 @@ class Size:
 size = Size(140, 190)
 max_width = size.width - 20
 
-font = ImageFont.truetype("单词游戏/BIZ-UDGothicR.ttc", 24) # 字体 与 大小
+font = ImageFont.truetype("单词游戏/BIZ-UDGothicR.ttc", 25) # 字体 与 大小
 
 kana_index = 0
 image_path_index = 0
