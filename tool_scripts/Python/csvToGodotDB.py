@@ -30,6 +30,8 @@ with open(args.gd, 'w', encoding='utf-8') as f_out:
                 f_out.write(f'{cell}')
             elif data_type[i] == "string":
                 f_out.write(f'"{cell}"')
+            elif data_type[i] == "int[]":
+                f_out.write(f'{cell}')
             else:
                 print("不支持")
             f_out.write(",")
