@@ -1,4 +1,3 @@
-
 import argparse
 import csv
 import json
@@ -10,72 +9,134 @@ parser.add_argument("--example_path", type=str, required=True, help="Path to exa
 parser.add_argument("--book_id", type=str, required=True, help="Book id")
 args = parser.parse_args()
 
-example_path_map_japanese_to_row_index = {}
-example_path_id_collection = {}
-example_path_japanese = 1
-example_path_id = 0
-example_path_new_id = 1
+def get_table_meta_info(data):
+    key = id(data)
+    if not hasattr(get_table_meta_info,"m"):
+        get_table_meta_info.m = {}
+    if key not in get_table_meta_info.m:
+        id_set = set()
+        id_to_row_map = {}
+        col_name_index = {}
+        for index, name in enumerate(data[1]): # 约定为列名
+            col_name_index[name] = index
+        for index, row in enumerate(data):
+            idx = row[0]
+            id_set.add(idx) # 约定 id 就在第一列
+            id_to_row_map[idx] = index
+        get_table_meta_info.m[key] = {
+            "new_id" : 1,
+            "id_set" : id_set,
+            "id_to_row_map" : id_to_row_map,
+            "col_name_index" : col_name_index
+        }
+    return get_table_meta_info.m[key]
+
+# 空 [] 居然是相同的 id
+def get_an_available_id(data):
+    data_info = get_table_meta_info(data)
+    id_set = data_info["id_set"]
+    new_id = data_info["new_id"]
+    while True:
+        if str(new_id) in id_set:
+            new_id += 1
+        else:
+            data_info["new_id"] = new_id
+            break
+    return new_id
+
+def table_has_id(data,idx):
+    data_info = get_table_meta_info(data)
+    id_set = data_info["id_set"]
+    return str(idx) in id_set
+
+def get_row_data_by_id(data,idx):
+    if table_has_id(data,idx):
+        data_info = get_table_meta_info(data)
+        return data[data_info["id_to_row_map"][str(idx)]]
+    else: raise Exception("id not exist")
+
+def insert_a_row_or_update(data,new_row_map):
+    if "id" in new_row_map:
+        if table_has_id(data,new_row_map["id"]):
+            update_by_id(data,new_row_map["id"],new_row_map)
+            return
+        new_id = new_row_map["id"]
+    else:
+        new_id = get_an_available_id(data)
+    data_info = get_table_meta_info(data)
+    col_name_index = data_info["col_name_index"]
+    new_row = []
+    for _ in col_name_index:
+        new_row.append("")
+    for key, value in new_row_map.items():
+        if key != "id":
+            new_row[col_name_index[key]] = str(value)
+    new_row[0] = str(new_id)
+    data_info["id_set"].add(new_row[0])
+    data_info["id_to_row_map"][new_row[0]] = len(data)
+    data.append(new_row)
+
+def update_by_id(data,idx,new_row_map):
+    row = get_row_data_by_id(data,idx)
+    data_info = get_table_meta_info(data)
+    col_name_index = data_info["col_name_index"]
+    for key, value in new_row_map.items():
+        if key != "id":
+            row[col_name_index[key]] = str(value)
+
+
+def get_id_if_column_has_value(data,col_name,value):
+    data_info = get_table_meta_info(data)
+    if col_name not in data_info["col_name_index"]:
+        raise Exception("col_name not exist")
+    index = data_info["col_name_index"][col_name]
+    for row in data: 
+        if row[index] == value:
+            return int(row[0])
+    return False
+
 with open(args.example_path, 'r', encoding='utf_8_sig') as file:
     csv_reader = csv.reader(file)
-    example_path_data = list(csv_reader)   # 转为二维数组（list of lists）
-    for index, row in enumerate(example_path_data):
-        example_path_map_japanese_to_row_index[row[example_path_japanese]] = index
-        example_path_id_collection[row[example_path_id]] = True
-# print(example_path_map_japanese_to_row_index)
-# print(example_path_id_collection)
-japanese_path_map_id_to_row_index = {}
-japanese_path_id_collection = {}
+    example_data = list(csv_reader)   # 转为二维数组（list of lists）
+
+
 with open(args.japanese_path, 'r', encoding='utf_8_sig') as file:
     csv_reader = csv.reader(file)
-    japanese_path_data = list(csv_reader)   # 转为二维数组（list of lists）
-    for index, row in enumerate(japanese_path_data):
-        japanese_path_map_id_to_row_index[row[0]] = index
-        japanese_path_id_collection[row[0]] = True
+    japanese_data = list(csv_reader)   # 转为二维数组（list of lists）
 
 
-def get_example_id(exam):
-    global example_path_new_id
-    global example_path_data
-    if exam[0] in example_path_map_japanese_to_row_index:
-        return int(example_path_data[example_path_map_japanese_to_row_index[exam[0]]][0])
-    else:
-
-        while True:
-            if str(example_path_new_id) not in example_path_id_collection:
-                example_path_id_collection[str(example_path_new_id)] = True
-                break
-            example_path_new_id = example_path_new_id + 1
-        example_path_data.append([example_path_new_id,exam[0],exam[1],"",0,0])
-        example_path_map_japanese_to_row_index[exam[0]] = len(example_path_data) - 1
-    return example_path_new_id
-
-# print(japanese_path_map_id_to_row_index)
 with open(args.json_path, 'r', encoding='utf-8') as f:
-        json_data = json.load(f)
-        for row in json_data:
-            if str(row["id"]) in japanese_path_map_id_to_row_index:
-                japanese_data = japanese_path_data[japanese_path_map_id_to_row_index[str(row["id"])]]
-                japanese_data[1] = row["kana"]
-                japanese_data[2] = row["kanji"]
-                japanese_data[3] = row["chinese"]
-                example_ids = []
-                for exam in row["example"]:
-                    example_ids.append(get_example_id(exam))
-                japanese_data[4] = str(example_ids)
-            else:
-                print("没有")
-        # print(cos_files)
+    json_data = json.load(f)
 
-#     # for idx, x in enumerate(rows[1]):
-#     #     if x == "kana":
-#     #         kana_index = idx
-#     #     if x == "image_path":
-#     #         image_path_index = idx
-
+for row in json_data:
+    example_ids = []
+    for exam in row["example"]:
+        example_id = get_id_if_column_has_value(example_data,"japanese",exam[0])
+        if not example_id:
+            example_id = get_an_available_id(example_data)
+            insert_a_row_or_update(example_data,{
+                "id":example_id,
+                "japanese":exam[0],
+                "chinese":exam[1],
+                "sound_start":0,
+                "sound_end":0,
+            })
+        example_ids.append(example_id)
+    insert_a_row_or_update(japanese_data,{
+        "id":row["id"],
+        "kana": row["kana"],
+        "kanji": row["kanji"],
+        "chinese": row["chinese"],
+        "example_id": example_ids,
+        "sound_start": 0,
+        "sound_end": 0,
+        "sound_end": 0,
+        "book_id" : args.book_id
+    })
 
 with open(args.japanese_path, 'w', encoding='utf_8_sig', newline='') as file:
     writer = csv.writer(file)
-    writer.writerows(japanese_path_data)
+    writer.writerows(japanese_data)
 with open(args.example_path, 'w', encoding='utf_8_sig', newline='') as file:
     writer = csv.writer(file)
-    writer.writerows(example_path_data)
+    writer.writerows(example_data)
