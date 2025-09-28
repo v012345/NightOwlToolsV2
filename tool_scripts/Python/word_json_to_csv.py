@@ -108,7 +108,7 @@ with open(args.japanese_path, 'r', encoding='utf_8_sig') as file:
 with open(args.json_path, 'r', encoding='utf-8') as f:
     json_data = json.load(f)
 
-for row in json_data:
+for row in json_data: # 主要逻辑
     example_ids = []
     for exam in row["example"]:
         example_id = get_id_if_column_has_value(example_data,"japanese",exam[0])
