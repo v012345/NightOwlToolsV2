@@ -1,8 +1,8 @@
 ﻿不可重复,日语原文,中文翻译,使用声音文件,声音开始时间,声音结束时间
 id,japanese,chinese,sound_file,sound_start,sound_end
-int,string,string,string,int,int
+int,string,string,string,float,float
 0,無し,无,,0,0
-1,兄が私達一家を支えてくれている。,哥哥一直支撑着我们一家。,,0,0
+1,兄が私達一家を支えてくれている。,哥哥一直支撑着我们一家。,res://assets/sounds/Chapter1_Section1.mp3,1.67,6.61
 2,家族は本当にありがたい存在だ。,有家人就好。,,0,0
 3,家族みんなで問題に向き合っている。,家人一起直面问题。,,0,0
 4,最近、家族のありがたさをつくづくと感じる。,最近我深感有家人的好。,,0,0

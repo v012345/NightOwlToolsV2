@@ -1,7 +1,7 @@
 ﻿不可重复,假名,"如果有的话, 给出汉字",中文翻译,连到例子表,使用声音文件,声音开始时间,声音结束时间,来源
 id,kana,kanji,chinese,example_id,sound_file,sound_start,sound_end,book_id
-int,string,string,string,int[],string,int,int,int
-1,いっか,一家,一家子，全家,[1],,0,0,1
+int,string,string,string,int[],string,float,float,int
+1,いっか,一家,一家子，全家,[1],res://assets/sounds/Chapter1_Section1.mp3,0,1.67,1
 2,ありがたい,ありがたい,值得感恩的，难得的,[2],,0,0,1
 3,むきあう,向き合う,直面，面对面,[3],,0,0,1
 4,つくづく[と],つくづく[と],痛感，深切地感到,[4],,0,0,1
