@@ -49,6 +49,16 @@ def table_has_id(data,idx):
     id_set = data_info["id_set"]
     return str(idx) in id_set
 
+def get_row_data_as_dictionary_by_id(data,idx):
+    if table_has_id(data,idx):
+        data_info = get_table_meta_info(data)
+        raw = data[data_info["id_to_row_map"][str(idx)]]
+        result = {}
+        for name,index in data_info["col_name_index"].items():
+            result[name] = raw[index]
+        return result
+    else: raise Exception("id not exist")
+
 def get_row_data_by_id(data,idx):
     if table_has_id(data,idx):
         data_info = get_table_meta_info(data)
@@ -122,17 +132,29 @@ for row in json_data: # 主要逻辑
                 "sound_end":0,
             })
         example_ids.append(example_id)
+    sound_start = 0
+    sound_end = 0
+    if table_has_id(japanese_data,row["id"]):
+        old_row = get_row_data_as_dictionary_by_id(japanese_data, row["id"])
+        sound_start = old_row["sound_start"]
+        sound_end = old_row["sound_end"]
+
     insert_a_row_or_update(japanese_data,{
         "id":row["id"],
         "kana": row["kana"],
         "kanji": row["kanji"],
         "chinese": row["chinese"],
         "example_id": example_ids,
-        "sound_start": 0,
-        "sound_end": 0,
-        "sound_end": 0,
+        "sound_start": sound_start,
+        "sound_end": sound_end,
         "book_id" : args.book_id
     })
+
+
+# import os
+# df.to_csv(temp_file, index=False, encoding="utf-8-sig")
+# # 再替换
+# os.replace(temp_file, target_file)  # 原子操作，替换 data.csv
 
 with open(args.japanese_path, 'w', encoding='utf_8_sig', newline='') as file:
     writer = csv.writer(file)
