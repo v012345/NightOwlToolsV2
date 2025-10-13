@@ -1,6 +1,6 @@
-﻿不可重复,书名
-id,book
-int,string
-0,無し
-1,N2単語2500
-2,中級へ行こう
+﻿不可重复,书名,封面
+id,book,cover
+int,string,string
+0,無し,
+1,N2単語2500,res://assets/covers/n2-2500.png
+2,中級へ行こう,res://assets/covers/3307.jpg

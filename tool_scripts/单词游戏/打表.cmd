@@ -9,6 +9,7 @@ setlocal EnableDelayedExpansion
 
 py -3 Python\csvToGodotDB.py --csv "单词游戏\japanese.csv" --gd "C:\NightOwlZone\Client\jlpt_pass\scripts\db\words\japanese.gd"
 py -3 Python\csvToGodotDB.py --csv "单词游戏\example.csv" --gd "C:\NightOwlZone\Client\jlpt_pass\scripts\db\words\example.gd"
+py -3 Python\csvToGodotDB.py --csv "单词游戏\books.csv" --gd "C:\NightOwlZone\Client\jlpt_pass\scripts\db\words\books.gd"
 
 
 endlocal
