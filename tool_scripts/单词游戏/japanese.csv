@@ -787,7 +787,7 @@ int,string,string,string,int[],string,float,float,int
 364,ふようひん,不用品,无用的东西 / 不用品,[401],res://assets/sounds/Chapter3_Section5.mp3,10.23,12.46,1
 365,はがす,はがす,"剥下 / 撕下, 揭下, 剥离",[402],res://assets/sounds/Chapter3_Section5.mp3,16.69,18.71,1
 366,たば,束,"捆, 束",[403],res://assets/sounds/Chapter3_Section5.mp3,23.14,24.81,1
-367,しばる,しばる,"绑, 捆, 扎",[404],res://assets/sounds/Chapter3_Section5.mp3,27.76,30.85,1
+367,しばる,しばる,"绑, 捆, 扎",[404],res://assets/sounds/Chapter3_Section5.mp3,28.82,30.85,1
 368,だんボール,段ボール,纸箱 / 硬纸板箱,[405],res://assets/sounds/Chapter3_Section5.mp3,35.58,37.9,1
 369,ガムテープ,ガムテープ,"胶带 / 牛皮胶带, 封箱胶带",[406],res://assets/sounds/Chapter3_Section5.mp3,42.64,44.98,1
 370,おしこむ,押し込む,塞入,[407],res://assets/sounds/Chapter3_Section5.mp3,49.44,51.58,1
