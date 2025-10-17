@@ -1,0 +1,17 @@
+﻿不可重复,读法,汉字,意思,说明用法的视频,来源,在书的第几页
+id,kana,kanji,chinese,url,book_id,page_num
+int,string,string,string,string[],int,int
+1,にもとづいて,に基づいて,"根据,按照","[""https://www.youtube.com/watch?v=ZZvwL9ovRqk&list=PLynCeSdpMqxBPMf_qvQCQC8g8dCxx_FJi&index=132""]",3,210
+2,～としたら・～とすれば・～とすると/～としても,～としたら・～とすれば・～とすると/～としても,如果/即使,"[""https://www.youtube.com/watch?v=3CvjuUYsW98&list=PLynCeSdpMqxBPMf_qvQCQC8g8dCxx_FJi&index=131""]",3,209
+3,～にくわえて,～に加えて,~再加上;不仅~而且,"[""https://www.youtube.com/watch?v=XZ96IeUZkTI&list=PLynCeSdpMqxBPMf_qvQCQC8g8dCxx_FJi&index=130""]",3,209
+4,～にあたって,～にあたって,在~之际,"[""https://www.youtube.com/watch?v=PnjDdZWPePM&list=PLynCeSdpMqxBPMf_qvQCQC8g8dCxx_FJi&index=129""]",3,208
+5,～をめぐって,～をめぐって,"围绕~;就~,关于~","[""https://www.youtube.com/watch?v=ZLRYC5TIoyU&list=PLynCeSdpMqxBPMf_qvQCQC8g8dCxx_FJi&index=128']",3,207
+6,～ものだ（感慨・懐古）,～ものだ（感慨・懐古）,真是~;(表示感叹),"[""https://www.youtube.com/watch?v=dFDy7orbvJM&list=PLynCeSdpMqxBPMf_qvQCQC8g8dCxx_FJi&index=127""]",3,206
+7,～ぬく,～ぬく,~到底;~徹底,"[""https://www.youtube.com/watch?v=S-7bNEjlk30&list=PLynCeSdpMqxBPMf_qvQCQC8g8dCxx_FJi&index=126""]",3,200
+8,～も…ば～も・～も…なら～も,～も…ば～も・～も…なら～も,既~又:也~也:又~又,"[""https://www.youtube.com/watch?v=8OR_bSVFszw&list=PLynCeSdpMqxBPMf_qvQCQC8g8dCxx_FJi&index=125""]",3,199
+9,～をこめて・～がこもった,～を込めて・～がこもった,注入;充满,"[""https://www.youtube.com/watch?v=m0pJHm6bLzQ&list=PLynCeSdpMqxBPMf_qvQCQC8g8dCxx_FJi&index=124""]",3,199
+10,～あまり・あまりの～に,～あまり・あまりの～に,非常~结果~,"[""https://www.youtube.com/watch?v=of-OKemjtIg&list=PLynCeSdpMqxBPMf_qvQCQC8g8dCxx_FJi&index=123""]",3,198
+11,～もかまわず,～もかまわず,不顾,"[""https://www.youtube.com/watch?v=_U87u1OhmKM&list=PLynCeSdpMqxBPMf_qvQCQC8g8dCxx_FJi&index=122""]",3,197
+12,～がたい,～がたい,"(精神上的, 相信, 接受, 理解)有困难","[""https://www.youtube.com/watch?v=q6-vDbkUCuQ&list=PLynCeSdpMqxBPMf_qvQCQC8g8dCxx_FJi&index=121""]",3,196
+13,～ても（逆接）,～ても（逆接）,"即使~也, 就算~也,虽然~也","[""https://www.youtube.com/watch?v=jhs9ftJJPAw&list=PLynCeSdpMqxBPMf_qvQCQC8g8dCxx_FJi&index=120"",""https://www.youtube.com/watch?v=RS3IS368zVc""]",3,196
+14,～すえに,～末に,经过~最后; ~结果,"[""https://www.youtube.com/watch?v=-QjpUD9K6nY&list=PLynCeSdpMqxBPMf_qvQCQC8g8dCxx_FJi&index=119""]",3,193
