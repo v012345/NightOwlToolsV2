@@ -702,7 +702,7 @@ int,string,string,string,int[],string,float,float,int
 279,てきぱき［と］（する）,てきぱき［と］（する）,利落、爽快,[308],res://assets/sounds/Chapter3_Section1.mp3,75.66,79.66,1
 280,ま,間,间隙、时间,[309],res://assets/sounds/Chapter3_Section1.mp3,85.25,87.05,1
 281,しゅうへん,周辺,周边,[310],res://assets/sounds/Chapter3_Section1.mp3,91.38,93.59,1
-282,しゅうい,周囲,周囲,[311],res://assets/sounds/Chapter3_Section1.mp3,69.06,101.23,1
+282,しゅうい,周囲,周囲,[311],res://assets/sounds/Chapter3_Section1.mp3,99,101.23,1
 283,あと,あと,剩下的,[312],res://assets/sounds/Chapter3_Section1.mp3,107.11,109.08,1
 284,すれちがう,すれ違う,擦过、交错,[313],res://assets/sounds/Chapter3_Section1.mp3,114.07,116.46,1
 285,はう,はう,趴,[314],res://assets/sounds/Chapter3_Section1.mp3,122.27,124.03,1
