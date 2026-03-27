@@ -68,7 +68,6 @@ if __name__ == "__main__":
     parser.add_argument("--xlsx", type=str, required=True, help="Path to xlsx")
     parser.add_argument("--json", type=str, required=True, help="Path to json")
     args = parser.parse_args()
-    print(f"处理表 : {args.xlsx}")
     xlsx_file = args.xlsx
     if not os.path.exists(xlsx_file):
         xlsx_file = os.path.join(os.getcwd(), xlsx_file)
@@ -114,6 +113,13 @@ if __name__ == "__main__":
                     row_data[k] = []
                 else:
                     row_data[k] = [str(x) for x in str(cell_value)[1:-1].split(",")]
+            elif data_type[c] == "array":
+                cell_value = xlsx.iloc[r, c]
+                if pd.isna(cell_value):
+                    row_data[k] = []
+                else:
+                    row_data[k] = json.loads(cell_value)
         output[row_data["Id"]] = row_data
     with open(args.json, 'w', encoding='utf-8') as f_out:
         json.dump(output, f_out, ensure_ascii=False, indent=2)
+    print(f"处理表 : {args.xlsx}")
