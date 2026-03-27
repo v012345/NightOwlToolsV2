@@ -91,9 +91,9 @@ if __name__ == "__main__":
         row_data = {}
         for k, c in header.items():
             if data_type[c] == "int":
-                row_data[k] = int(xlsx.iloc[r, c])
+                row_data[k] = int(xlsx.iloc[r, c] or 0)
             elif data_type[c] == "string":
-                row_data[k] = str(xlsx.iloc[r, c])
+                row_data[k] = str(xlsx.iloc[r, c] or "")
             elif data_type[c] == "int[]":
                 cell_value = xlsx.iloc[r, c]
                 if pd.isna(cell_value):
