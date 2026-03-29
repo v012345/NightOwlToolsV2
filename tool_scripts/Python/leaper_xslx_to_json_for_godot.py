@@ -80,7 +80,7 @@ if __name__ == "__main__":
     header_row = xlsx.get_row(4)
     header = {}
     for i, v in enumerate(header_row):
-        if v is not None and not pd.isna(v):
+        if v is not None and not pd.isna(v) and not str(v).startswith("$"):
             header[v] = i
     data_type = xlsx.get_row(3)
     start = xlsx.find_next_str_in_col(0, 0,"Start")
